@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import { env } from './env';
 import { AppError } from './utils/AppError';
+import { routes } from './routes';
 
 
 const app = express();
@@ -14,6 +15,9 @@ app.use(express.json());
 
 //Habilitar o CORS
 app.use(cors());
+
+// ROTAS DA APLICAÇÃO
+app.use(routes);
 
 //Tratamento de erros: Verificar se erro vem do lado do CLIENTE ou pelo SERVIDOR
 app.use((err: ErrorRequestHandler, request: Request, response: Response, next: NextFunction) => {

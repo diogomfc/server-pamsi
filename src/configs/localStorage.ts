@@ -1,6 +1,6 @@
 import multer from 'multer';
-import crypto from 'crypto';
-import path from 'path';
+import crypto from 'node:crypto';
+import path from 'node:path';
 
 //Salvar em disco local 
 const TMP_FOLDER = path.resolve(__dirname, '..', '..', 'tmp');

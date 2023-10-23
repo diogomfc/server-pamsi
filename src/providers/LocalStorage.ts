@@ -1,25 +1,34 @@
 import fs from 'fs';
 import path from 'path';
-
+import { AppError } from '@/utils/AppError';
 import { STORAGE_LOCAL } from '@/configs/localStorage';
+
 
 export class LocalStorage {
     async saveFile(file: string) {
-        await fs.promises.rename(
-            path.resolve(STORAGE_LOCAL.TMP_FOLDER, file),
-            path.resolve(STORAGE_LOCAL.UPLOADS_FOLDER_AVATAR, file),
-        );
+        const tempPath = path.resolve(STORAGE_LOCAL.TMP_FOLDER, file);
+        const finalPath = path.resolve(STORAGE_LOCAL.UPLOADS_FOLDER_AVATAR, file);
 
-        return file;
+        try {
+            await fs.promises.rename(tempPath, finalPath);
+            return file;
+        } catch (error) {
+            // Se ocorrer um erro durante a renomeação (movendo o arquivo), remova o arquivo do diretório temporário
+            await this.deleteFile(tempPath);
+            throw new AppError('Erro ao mover o arquivo de avatar.', 500);
+        }
     }
 
-    async deleteFile(file: string) {
-        const filePath = path.resolve(STORAGE_LOCAL.UPLOADS_FOLDER_AVATAR, file);
+    async deleteFile(filePath: string) {
         try {
             await fs.promises.stat(filePath);
         } catch {
             return;
         }
-        await fs.promises.unlink(filePath);
+        try {
+            await fs.promises.unlink(filePath);
+        } catch (error) {
+            throw new AppError('Erro ao remover o arquivo.', 500);
+        }
     }
 }
