@@ -1,8 +1,8 @@
 {
-  "name": "serve",
+  "name": "serve-pamsi-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "API para o sistema de integração da Pamcary",
+  "main": "build/server.js",
   "scripts": {
     "server": "tsx watch src/server.ts",
     "build": "tsup src --out-dir build",

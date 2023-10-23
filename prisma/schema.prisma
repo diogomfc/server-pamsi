@@ -9,3 +9,131 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+//**Models de Usuário e Autenticação**
+model Usuario {
+  id                   String            @id @default(uuid())
+  nome                 String
+  email                String            @unique
+  avatar               String?
+  funcao               FuncaoUsuario     @default(Analista)
+  senha_hash           String
+  criado_em            DateTime          @default(now())
+  token_atualizacao    TokenAtualizacao?
+  relatoriosCriados    Relatorio[]       @relation("CriadorRelatorio")
+  relatoriosPermitidos Relatorio[]       @relation("UsuariosPermitidosParaRelatorio")
+
+  @@map("usuarios")
+}
+
+model TokenAtualizacao {
+  id         String   @id @default(uuid())
+  expira_em  Int
+  usuario_id String   @unique
+  usuario    Usuario  @relation(fields: [usuario_id], references: [id])
+  criado_em  DateTime @default(now())
+
+  @@map("tokens_atualizacao")
+}
+
+enum FuncaoUsuario {
+  Admin
+  Analista
+  Supervisor
+  Revisor
+}
+
+//**Models de Relatório**
+model Relatorio {
+  id                 String          @id @default(uuid())
+  numero_processo    String          @unique
+  cliente            String
+  cnpj               String
+  data_entrada       DateTime        @default(now())
+  data_emissao       DateTime?
+  status             StatusRelatorio @default(Formalizando)
+  criador            Usuario         @relation("CriadorRelatorio", fields: [criador_id], references: [id])
+  criador_id         String
+  usuariosPermitidos Usuario[]       @relation("UsuariosPermitidosParaRelatorio")
+
+  etapas EtapaRelatorio[]
+
+  @@map("relatorios")
+}
+
+enum StatusRelatorio {
+  Formalizando
+  Finalizado
+  Aprovado
+  Rejeitado
+}
+
+//**Models de Etapa**
+enum TipoEtapa {
+  stepClienteSegurado
+  stepDeclaracaoMotoristaAjudante
+}
+
+enum StatusEtapa {
+  Pendente
+  Formalizando
+  Finalizado
+}
+
+model EtapaRelatorio {
+  id             String      @id @default(uuid())
+  tipoEtapa      TipoEtapa
+  statusEtapa    StatusEtapa
+  numeroEtapa    String
+  numeroProcesso String?
+
+  clienteSeguradoId String?
+  clienteSegurado   ClienteSegurado? @relation(fields: [clienteSeguradoId], references: [id])
+
+  declaracaoMotoristaAjudanteId String?
+  declaracaoMotoristaAjudante   DeclaracaoMotoristaAjudante? @relation(fields: [declaracaoMotoristaAjudanteId], references: [id])
+
+  relatorioId String
+  relatorio   Relatorio @relation(fields: [relatorioId], references: [id])
+
+  @@map("etapas_relatorios")
+}
+
+model ClienteSegurado {
+  id              String           @id @default(uuid())
+  numero_etapa    String           @default("1")
+  status          StatusEtapa
+  nomeCliente     String?
+  cnpj            String?
+  numero_processo String?
+  EtapaRelatorio  EtapaRelatorio[]
+
+  @@map("clientes_segurados")
+}
+
+model DeclaracaoMotoristaAjudante {
+  id                 String           @id @default(uuid())
+  numero_etapa       String           @default("11")
+  status             StatusEtapa
+  arquivo_declaracao Arquivo[]
+  numero_processo    String?
+  EtapaRelatorio     EtapaRelatorio[]
+
+  @@map("declaracoes_motorista_ajudante")
+}
+
+//**Model de Arquivo**
+model Arquivo {
+  id              String  @id @default(uuid())
+  nome            String?
+  tamanho         Int?
+  chave           String
+  localizacao     String
+  numero_processo String?
+
+  DeclaracaoMotoristaAjudante DeclaracaoMotoristaAjudante? @relation(fields: [declaracaoMotoristaAjudanteId], references: [id])
+
+  declaracaoMotoristaAjudanteId String?
+
+  @@map("arquivos")
+}
