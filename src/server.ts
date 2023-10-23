@@ -1,5 +1,9 @@
+import 'express-async-errors';
+
 import express from 'express';
+
 import { env } from './env';
+import { AppError } from './utils/AppError';
 
 
 const app = express();
