@@ -1,6 +1,7 @@
 import 'express-async-errors';
 
 import express, { ErrorRequestHandler, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 
 import { env } from './env';
 import { AppError } from './utils/AppError';
@@ -8,9 +9,13 @@ import { AppError } from './utils/AppError';
 
 const app = express();
 
-
+//Habilitar o express para receber dados em formato json
 app.use(express.json());
 
+//Habilitar o CORS
+app.use(cors());
+
+//Tratamento de erros: Verificar se erro vem do lado do CLIENTE ou pelo SERVIDOR
 app.use((err: ErrorRequestHandler, request: Request, response: Response, next: NextFunction) => {
     if (err instanceof AppError) {
         return response.status(err.statusCode).json({
@@ -27,6 +32,7 @@ app.use((err: ErrorRequestHandler, request: Request, response: Response, next: N
     });
 });
 
+// Rota para iniciar o servidor
 app.listen({
     port: env.PORT,
 }, () => {
