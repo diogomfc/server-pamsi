@@ -5,8 +5,8 @@ import * as z from 'zod';
 import { FormatDate } from '@/utils/DateUtils';
 import { prisma } from '@/database';
 import { AppError } from '@/utils/AppError';
-
 import { logger } from '@/utils/Logger';
+
 import { LocalStorage } from '@/providers/LocalStorageProvider';
 
 //Schema para validar os dados de input
@@ -108,8 +108,40 @@ export class UsuarioController {
     
         return next();
     }
+
+    // Controller para listar um usuário
+    async show(request: Request, response: Response) {
+        const usuario_id = request.usuario.id;
+
+        const usuarioCriado = await prisma.usuario.findUnique({
+            where: {
+                id: usuario_id
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                funcao: true,
+                avatar: true,
+                criado_em: true,
+            }
+        });
+
+        const usuario = {
+            id: usuarioCriado?.id,
+            nome: usuarioCriado?.nome,
+            email: usuarioCriado?.email,
+            funcao: usuarioCriado?.funcao,
+            avatar: usuarioCriado?.avatar,
+            criado_em: usuarioCriado?.criado_em ? FormatDate(usuarioCriado.criado_em) : undefined,
+        };
+        if (!usuario.id) {
+            throw new AppError('O usuário não foi encontrado.', 404);
+        }
+        return response.json(usuario);
+    }
     
-    // // Controller para listar um usuário
+    
     // async show(request: Request, response: Response) {
     //     const user_id = request.user.id;
 
