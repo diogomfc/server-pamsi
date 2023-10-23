@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 
+import { FormatDate } from '@/utils/DateUtils';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
-import { LocalStorage } from '@/providers/LocalStorage';
+import { LocalStorage } from '@/providers/LocalStorageProvider';
+
 
 
 export class UsuarioAvatarController {
@@ -34,13 +36,19 @@ export class UsuarioAvatarController {
                 }
             });
 
+            //Formatar a data de criação do usuário
+            const usuarioComDataFormatada = {
+                ...usuario,
+                criado_em: FormatDate(usuario.criado_em)
+            };
+
             logger.info({
                 message: `Usuário atualizado com sucesso: ${usuario.id}`,
                 executor: usuario.nome
             });
 
             //Retornar os dados do usuário atualizado
-            return response.json(usuario);
+            return response.json(usuarioComDataFormatada);
         } catch (error) {
             // Se ocorrer um erro, remova o arquivo do diretório temporário
             await localStorage.deleteFile(request.file?.path as string);

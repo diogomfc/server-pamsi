@@ -1,10 +1,8 @@
 import { Router } from 'express';
 import { usuarioRouter } from './usuario.routes';
-
+import { loginRoutes } from './login.routes';
 
 export const routes = Router();
-
-
 
 // Rota de inicialização para teste
 routes.get('/', async (request, response) => {
@@ -13,3 +11,4 @@ routes.get('/', async (request, response) => {
 
 // Rota de usuário
 routes.use('/usuarios', usuarioRouter);
+routes.use('/login', loginRoutes);

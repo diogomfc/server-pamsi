@@ -2,10 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { hash } from 'bcryptjs';
 import * as z from 'zod';
 
+import { FormatDate } from '@/utils/DateUtils';
 import { prisma } from '@/database';
 import { AppError } from '@/utils/AppError';
-import { LocalStorage } from '@/providers/LocalStorage';
+
 import { logger } from '@/utils/Logger';
+import { LocalStorage } from '@/providers/LocalStorageProvider';
 
 //Schema para validar os dados de input
 const schema = z.object({
@@ -38,7 +40,7 @@ export class UsuarioController {
             await armazenamentoDisco.saveFile(arquivoAvatar.path);
             logger.info({
                 message: `Arquivo de avatar salvo com sucesso: ${arquivoAvatar.path}`,
-                user: nome
+                executor: nome
             });
         }
 
@@ -55,7 +57,7 @@ export class UsuarioController {
                 await armazenamentoDisco.deleteFile(arquivoAvatar.path);
                 logger.info({
                     message: `Arquivo de avatar removido com sucesso: ${arquivoAvatar.path}`,
-                    user: nome
+                    executor: nome
                 });
             }
             throw new AppError('Este e-mail já está em uso.', 401);
@@ -70,35 +72,43 @@ export class UsuarioController {
         const senhaCriptografada = await hash(senha_hash, 8);
 
         //Criar o usuário com a senha criptografada
-        const usuario = await prisma.usuario.create({
+        const usuarioCriado = await prisma.usuario.create({
             data: {
                 nome,
                 email,
                 senha_hash: senhaCriptografada,
                 funcao,
                 avatar: arquivoAvatar ? arquivoAvatar.path : null,
-            }
+            },
+            select: {
+                id: true,
+                nome: true,
+                email: true,
+                funcao: true,
+                avatar: true,
+                criado_em: true,
+            },
         });
 
         logger.info({
-            message: `Usuário criado com sucesso: ${usuario.id}`,
-            user: nome
+            message: `Usuário criado com sucesso: ${usuarioCriado.id}`,
+            executor: nome,
         });
-      
 
-        req.usuario = {
-            id: usuario.id,
-            nome: usuario.nome,
-            email: usuario.email,
-            funcao: usuario.funcao,
-            avatar: usuario.avatar,
+        const usuario = {
+            id: usuarioCriado.id,
+            nome: usuarioCriado.nome,
+            email: usuarioCriado.email,
+            funcao: usuarioCriado.funcao,
+            avatar: usuarioCriado.avatar,
+            criado_em: FormatDate(usuarioCriado.criado_em),
         };
-      
-        //Só prosseguir caso tudo esteja correto
+
+        req.usuario = usuario;
+    
         return next();
-  
-        //return resposta.json(usuario);   
     }
+    
     // // Controller para listar um usuário
     // async show(request: Request, response: Response) {
     //     const user_id = request.user.id;
