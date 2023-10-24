@@ -1,3 +1,4 @@
+import { logger } from '@/utils/Logger';
 import 'dotenv/config';
 import { z } from 'zod';
 
@@ -5,6 +6,7 @@ const envSchema = z.object({
     PORT: z.coerce.number().default(3333),
     NODE_ENV: z.enum(['dev', 'test', 'production']).default('dev'),
     JWT_SECRET: z.string(),
+    JWT_EXPIRES_IN: z.string(),
     //CORS_ORIGIN: z.string().url(),
     //CORS_METHODS: z.string(),
     AWS_ACCESS_KEY_ID: z.string(),
@@ -16,9 +18,9 @@ const envSchema = z.object({
 export const _env = envSchema.safeParse(process.env);
 
 if (!_env.success) {
-    console.error(' ❌ Invalid environment variables', _env.error.format());
+    logger.error(' ❌ Variáveis de ambiente inválidas', _env.error.format());
 
-    throw new Error('Invalid environment variables');
+    throw new Error('Variáveis de ambiente inválidas');
 }
 
 export const env = _env.data;

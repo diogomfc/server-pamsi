@@ -1,22 +1,23 @@
-import { NextFunction, Request, Response, RequestHandler} from 'express';
-
+import { NextFunction, Request, Response, RequestHandler } from 'express';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
-
 import { FuncaoUsuario } from '@prisma/client';
 
-export function permicaoParaAcesso(funcao: FuncaoUsuario[]): RequestHandler{
-    return async (request: Request, response: Response, next: NextFunction) => {
-        const { funcao: funcaoUsuario } = request.usuario;
+export function permicaoParaAcesso(funcao: FuncaoUsuario[]): RequestHandler {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const { funcao: funcaoUsuario } = req.usuario;
 
-        if(!funcao.includes(funcaoUsuario)){
+        if (!funcao.includes(funcaoUsuario)) {
+            logger.info({
+                message: `Tentativa de acesso não autorizado: Usuário ${req.usuario.nome} (${req.usuario.id}) com função ${req.usuario.funcao} tentou acessar o recurso ${req.url}.`,
+            });
             throw new AppError('Usuário não possui permissão para acessar este recurso.', 403);
         }
 
         logger.info({
-            message: `Usuário ${request.usuario.nome} acessou o recurso ${request.url}.`,
-            executor: request.usuario.nome
+            message: `Acesso autorizado: Usuário ${req.usuario.nome} (${req.usuario.id}) com função ${req.usuario.funcao} acessou o recurso ${req.url}.`,
         });
+
         return next();
     };
 }

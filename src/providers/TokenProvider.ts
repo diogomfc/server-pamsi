@@ -3,10 +3,13 @@ import { sign } from 'jsonwebtoken';
 import { env } from '@/env';
 
 export class TokenProvider {
-    async execute(usuario_id: string, funcao:string) {
-        const token = sign({funcao}, env.JWT_SECRET, {
+    async execute(usuario_id: string, nome:string, funcao:string) {
+        const token = sign({
+            nome,
+            funcao
+        }, env.JWT_SECRET, {
             subject: usuario_id,
-            expiresIn: '1d'
+            expiresIn: env.JWT_EXPIRES_IN,
         });
         return token;
     }

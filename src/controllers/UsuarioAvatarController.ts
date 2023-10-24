@@ -6,14 +6,11 @@ import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 import { LocalStorage } from '@/providers/LocalStorageProvider';
 
-
-
 export class UsuarioAvatarController {
-    async create(request: Request, response: Response): Promise<Response> {
+    async create(req: Request, res: Response): Promise<Response> {
         //Receber o arquivo de avatar imagem
-        const arquivoAvatar = request.file?.filename as string;
-        const { nome } = request.usuario;
-
+        const arquivoAvatar = req.file?.filename as string;
+     
         //Verificar se o arquivo de avatar imagem foi fornecido
         if (!arquivoAvatar) {
             throw new AppError('Arquivo de avatar não fornecido.', 401);
@@ -29,7 +26,7 @@ export class UsuarioAvatarController {
             //Atualizar o usuário com o caminho do arquivo de avatar imagem
             const usuario = await prisma.usuario.update({
                 where: {
-                    id: request.usuario.id
+                    id: req.usuario.id
                 },
                 data: {
                     avatar: filename,
@@ -43,20 +40,19 @@ export class UsuarioAvatarController {
             };
 
             logger.info({
-                message: `Usuário atualizado com sucesso: ${usuario.id}`,
-                executor: usuario.nome
+                message: `Usuário ${usuario.nome} (ID: ${usuario.id}) atualizado com sucesso.`,
             });
-
+          
             //Retornar os dados do usuário atualizado
-            return response.json(usuarioComDataFormatada);
+            return res.json(usuarioComDataFormatada);
+
         } catch (error) {
             // Se ocorrer um erro, remova o arquivo do diretório temporário
-            await localStorage.deleteFile(request.file?.path as string);
+            await localStorage.deleteFile(req.file?.path as string);
 
             if (error instanceof Error) {
                 logger.error({
                     message: `Erro ao atualizar usuário: ${error.message}`,
-                    executor: {nome, id: request.usuario.id}
                 });
             }
 

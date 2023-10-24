@@ -8,8 +8,8 @@ import { TokenProvider } from '@/providers/TokenProvider';
 import { prisma } from '@/database';
 
 export class UsuarioRefreshToken{
-    async create(request: Request, response: Response){
-        const { refreshToken } = request.body;
+    async create(req: Request, res: Response){
+        const { refreshToken } = req.body;
 
         if (!refreshToken) {
             throw new AppError('Token de atualização não informado.', 401);
@@ -18,6 +18,9 @@ export class UsuarioRefreshToken{
         const tokenAtualizacao = await prisma.tokenAtualizacao.findFirst({
             where: {
                 id: refreshToken
+            },
+            include: {
+                usuario: true
             }
         });
 
@@ -27,9 +30,13 @@ export class UsuarioRefreshToken{
        
         // Gerar um novo token de acesso
         const tokenProvider = new TokenProvider();
+
+        // const token = await tokenProvider.execute(usuario.id, usuario.nome, usuario.funcao);
+
         const token = await tokenProvider.execute(
-            tokenAtualizacao.usuario_id,
-            String(tokenAtualizacao.expira_em)
+            tokenAtualizacao.usuario.id,
+            tokenAtualizacao.usuario.nome,
+            tokenAtualizacao.usuario.funcao
         );
 
         const tokenProviderExpira_em = dayjs().isAfter(dayjs.unix(Number(tokenAtualizacao.expira_em)));
@@ -38,7 +45,7 @@ export class UsuarioRefreshToken{
             throw new AppError('Token de atualização expirado.', 401);
         }
 
-        return response.json({
+        return res.json({
             token
         });
     }

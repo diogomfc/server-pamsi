@@ -4,12 +4,9 @@ import { verify, JwtPayload } from 'jsonwebtoken';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
 import { env } from '@/env';
-import { FormatDate } from '@/utils/DateUtils';
 
-
-
-export function verificarAutenticacao(request: Request, response: Response, next: NextFunction){
-    const authHeader = request.headers.authorization;
+export function verificarAutenticacao(req: Request, res: Response, next: NextFunction){
+    const authHeader = req.headers.authorization;
 
     if(!authHeader){
         throw new AppError('Token de acesso não informado.', 401);
@@ -19,23 +16,20 @@ export function verificarAutenticacao(request: Request, response: Response, next
     try {
         const decodedToken = verify(token, env.JWT_SECRET) as JwtPayload;
 
-        const {sub: id, funcao} = decodedToken;
+        const {sub: id, nome, email, funcao, } = decodedToken;
        
         if (typeof id !== 'string' || !funcao) {
             throw new AppError('Token de acesso inválido.', 401);
         }
-        request.usuario = {
+        req.usuario = {
             id,
-            nome: decodedToken.nome,
-            email: decodedToken.email,
+            nome,
+            email,
             funcao,
-            avatar: decodedToken.avatar,
-            criado_em: FormatDate(decodedToken.data_criacao),
         };
 
         logger.info({
-            message: `Usuário ${id} autenticado com sucesso.`,
-            executor: id
+            message: `Autenticação bem-sucedida: Usuário ${nome} (ID: ${id}) se autenticou com sucesso.`,
         });
 
         return next();
