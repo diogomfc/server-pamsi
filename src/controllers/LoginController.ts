@@ -1,75 +1,99 @@
-import { compare } from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
+import { compare } from 'bcryptjs';
+import * as z from 'zod';
 
 import { FormatDate } from '@/utils/DateUtils';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
+import { prisma } from '@/database';
 import { TokenProvider } from '@/providers/TokenProvider';
 import { RefreshTokenProvider } from '@/providers/RefreshTokenProvider';
 
-import { prisma } from '@/database';
+// Defina o esquema Zod para validar o corpo da solicitação
+const loginSchema = z.object({
+    email: z.string().email(),
+    senha: z.string(),
+});
 
-export class LoginController{
+export class LoginController {
+    // Controller para autenticar um usuário e emitir tokens
     async create(req: Request, res: Response, next: NextFunction) {
-        const { email, senha } = req.body;
-        let usuario;
-
         try {
-            usuario = await prisma.usuario.findUnique({
-                where: {
-                    email,
-                },
-            });
+            // Validar o corpo da solicitação com o schema Zod
+            const { email, senha } = loginSchema.parse(req.body);
 
-            if (!usuario) {
-                throw new AppError('Email ou senha incorretos.', 401);
+            let usuario;
+
+            try {
+                // Encontrar o usuário com base no email fornecido
+                usuario = await prisma.usuario.findUnique({
+                    where: {
+                        email,
+                    },
+                });
+
+                // Verificar se o usuário existe
+                if (!usuario) {
+                    throw new AppError('Email ou senha incorretos.', 401);
+                }
+
+                // Comparar a senha fornecida com a senha do usuário
+                const senhaCorreta = await compare(senha, usuario.senha_hash);
+
+                // Verificar a autenticidade da senha
+                if (!senhaCorreta) {
+                    throw new AppError('Email ou senha incorretos.', 401);
+                }
+
+                // Gerar um novo token de acesso
+                const tokenProvider = new TokenProvider();
+                const token = await tokenProvider.execute(usuario.id, usuario.nome, usuario.funcao);
+
+                // Gerar um novo token de atualização
+                const refreshTokenProvider = new RefreshTokenProvider();
+                const refreshToken = await refreshTokenProvider.execute(usuario.id);
+                const expira_em = FormatDate(new Date(refreshToken.expira_em * 1000));
+
+                // Remover a senha do usuário antes de enviar a resposta
+                const usuarioSemSenha = {
+                    ...usuario,
+                    senha_hash: undefined,
+                };
+
+                // Registrar a ação de login no log
+                logger.info({
+                    message: `Login realizado por: ${usuario.nome} (ID: ${usuario.id}).`,
+                });
+
+                // Enviar a resposta com os tokens e os detalhes do usuário
+                return res.json({
+                    usuario: usuarioSemSenha,
+                    token,
+                    refreshToken: {
+                        id: refreshToken.id,
+                        criado_em: FormatDate(refreshToken.criado_em),
+                        expira_em: expira_em,
+                    },
+                });
+            } catch (error) {
+                // Lidar com erros durante o processo de autenticação
+                if (usuario) {
+                    logger.error({
+                        message: `Erro ao realizar login para: ${usuario.nome} (ID: ${usuario.id}). Motivo: ${JSON.stringify(error)}`,
+                    });
+                } else {
+                    logger.error({
+                        message: `Erro ao realizar login para: ${email}. Motivo: ${JSON.stringify(error)}`,
+                    });
+                }
+                return next(error);
             }
-
-            const senhaCorreta = await compare(senha, usuario.senha_hash);
-
-            if (!senhaCorreta) {
-                throw new AppError('Email ou senha incorretos.', 401);
-            }
-
-            // Gerar um novo token de acesso
-            const tokenProvider = new TokenProvider();
-            const token = await tokenProvider.execute(usuario.id, usuario.nome, usuario.funcao);
-
-            // Gerar um novo token de atualização
-            const refreshTokenProvider = new RefreshTokenProvider();
-            const refreshToken = await refreshTokenProvider.execute(usuario.id);
-            const expira_em = FormatDate(new Date(refreshToken.expira_em * 1000));
-
-            // Esconder a senha gerada
-            const usuarioSemSenha = {
-                ...usuario,
-                senha_hash: undefined,
-            };
-
-            logger.info({
-                message: `Login realizado por: ${usuario.nome} (ID: ${usuario.id}).`,
-            });
-
-            return res.json({
-                usuario: usuarioSemSenha,
-                token,
-                refreshToken: {
-                    id: refreshToken.id,
-                    criado_em: FormatDate(refreshToken.criado_em),
-                    expira_em: expira_em,
-                },
-            });
         } catch (error) {
-            if (usuario) {
-                logger.error({
-                    message: `Erro ao realizar login para: ${usuario.nome} (ID: ${usuario.id}). Motivo: ${JSON.stringify(error)}`,
-                });
-            } else {
-                logger.error({
-                    message: `Erro ao realizar login para: ${email}. Motivo: ${JSON.stringify(error)}`,
-                });
-            }
-            next(error);
+            // Lidar com erros de validação do corpo da solicitação
+            logger.error({
+                message: `Erro ao validar o corpo da solicitação: ${JSON.stringify(error)}`,
+            });
+            return next(error);
         }
     }
 }
