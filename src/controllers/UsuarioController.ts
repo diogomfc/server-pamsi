@@ -11,13 +11,6 @@ import { prisma } from '@/database';
 import { LocalStorage } from '@/providers/LocalStorageProvider';
 import { FuncaoUsuario } from '@prisma/client';
 
-const usuarioSchema = z.object({
-    nome: z.string(),
-    email: z.string().email(),
-    senha_hash: z.string().optional(),
-    funcao: z.nativeEnum(FuncaoUsuario).optional(),
-});
-
 const usuarioSchemaUpdate = z.object({
     nome: z.string().optional(),
     email: z.string().email().optional(),
@@ -29,57 +22,57 @@ export class UsuarioController {
     //POST - Controlador para criar um novo usuário somente admin ou supervisor
     async create(req: Request, res: Response, next: NextFunction) {
         
-        let arquivoAvatarPath;
+        const avatarPath = req.file?.path as string;
+        const avatarFilename = req.file?.filename as string;
         const armazenamentoDisco = new LocalStorage();
 
+        //buscar o usuário autenticado
+        const usuarioAutenticado = req.usuario;
+
         try {
-            const { nome, email, senha_hash, funcao } = usuarioSchema.parse(req.body);
-  
-            if (!nome || !email || !senha_hash) {
+            //const { nome, email, senha, funcao } = usuarioSchema.parse(req.body);
+            const { nome, email, senha, funcao } = req.body;
+
+            if (!nome || !email || !senha) {
                 throw new AppError('Informe todos os campos de texto (nome, email e senha).');
             }
-  
-            //const arquivoAvatar = req.file;
-            const arquivoAvatar = req.file?.filename as string;
 
-            if (arquivoAvatar) {
-                await armazenamentoDisco.saveFile(arquivoAvatar);
-                arquivoAvatarPath = arquivoAvatar;
-                logger.info({
-                    message: `Arquivo de avatar salvo com sucesso: ${arquivoAvatar}`,
-                });
+            // Verifique se a função do usuário não é válida e gere um AppError
+            if (funcao !== 'Admin' && funcao !== 'Analista' && funcao !== 'Revisor' && funcao !== 'Supervisor') {
+                throw new AppError('Informe um perfil válido (Admin, Analista, Revisor ou Supervisor)', 401);
             }
-  
+
+            // Verifique se o e-mail já está em uso
             const verificaEmailUsuarioExiste = await prisma.usuario.findFirst({
                 where: {
                     email,
                 },
             });
-  
+
             if (verificaEmailUsuarioExiste) {
-                if (arquivoAvatar) {
-                    await armazenamentoDisco.deleteFile(arquivoAvatar);
-                    logger.info({
-                        message: `Arquivo de avatar removido com sucesso: ${arquivoAvatar}`,
-                    });
-                }
                 throw new AppError('Este e-mail já está em uso.', 401);
             }
-  
-            //Aceita somente os perfis "Admin, Analista, Revisor ou Supervisor"
-            if (funcao !== 'Admin' && funcao !== 'Analista' && funcao !== 'Revisor' && funcao !== 'Supervisor') {
-                throw new AppError('Informe um perfil válido (Admin, Analista, Revisor ou Supervisor).');
+
+            // Criptografe a senha
+            const senhaCriptografada = await hash(senha, 8);
+
+            // Salve o arquivo de avatar no disco
+            if(avatarFilename){
+                const arquivoAvatarPath = await armazenamentoDisco.saveFile(avatarFilename);
+                logger.info({
+                    message: `Arquivo de avatar salvo com sucesso: ${arquivoAvatarPath}`,
+                    method: req.method,
+                    url: req.originalUrl,
+                });
             }
-  
-            const senhaCriptografada = await hash(senha_hash, 8);
-  
+
             const usuarioCriado = await prisma.usuario.create({
                 data: {
                     nome,
                     email,
                     senha_hash: senhaCriptografada,
                     funcao,
-                    avatar: arquivoAvatarPath ? path.basename(arquivoAvatarPath) : null,
+                    avatar: avatarPath ? path.basename(avatarPath) : null,
                 },
                 select: {
                     id: true,
@@ -90,12 +83,7 @@ export class UsuarioController {
                     criado_em: true,
                 },
             });
-  
-            logger.info({
-                message: `Usuário criado com sucesso: ${usuarioCriado.id}`,
-                executor: nome,
-            });
-  
+
             const usuario = {
                 id: usuarioCriado.id,
                 nome: usuarioCriado.nome,
@@ -104,35 +92,43 @@ export class UsuarioController {
                 avatar: usuarioCriado.avatar,
                 criado_em: FormatDate(usuarioCriado.criado_em),
             };
-  
+
             req.usuario = usuario;
-  
-            // Envie uma resposta de sucesso para o cliente
             res.status(201).json({ message: 'Usuário criado com sucesso', usuario });
-        } catch (error) {
-            if (arquivoAvatarPath) {
-                // Se um erro ocorreu e o arquivo de avatar foi salvo, exclua-o
-                await armazenamentoDisco.deleteFile(arquivoAvatarPath);
-                logger.info({
-                    message: `Arquivo de avatar removido devido a um erro: ${arquivoAvatarPath}`,
-                });
-            }
-  
-            logger.error({
-                message: `Erro ao criar o usuário por ${req.usuario?.nome || 'anônimo'}:  ${JSON.stringify(error)}`,
+
+            logger.info({
+                message: `Usuário criado com sucesso. Detalhes: ID - ${usuarioCriado.id}, Nome - ${usuarioCriado.nome}. Criado por: Nome - ${usuarioAutenticado.nome}, Função - ${usuarioAutenticado.funcao}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
+
+        } catch (error) {
+            //Se o arquivo de avatar foi salvo com sucesso e ocorreu um erro, exclua o arquivo de avatar
+            if (avatarFilename) {
+                await armazenamentoDisco.deleteFile(avatarPath);
+            }
+
+            logger.error({
+                message: `Ocorreu um erro ao tentar criar o usuário por ${
+                    usuarioAutenticado ? usuarioAutenticado.nome : 'usuário não autenticado'
+                }. Detalhes do erro: ${JSON.stringify(error)}.`,
+                method: req.method,
+                url: req.originalUrl,
+            });
+
             return next(error);
         }
     }
-  
+
     //GET - Controller para carregar o perfil do usuário
     async perfil(req: Request, res: Response, next: NextFunction) {
+        
+        const usuarioAutenticado = req.usuario;
+      
         try {
-            const { id } = req.usuario;
-  
             const usuario = await prisma.usuario.findUnique({
                 where: {
-                    id
+                    id: usuarioAutenticado.id
                 },
                 select: {
                     id: true,
@@ -146,7 +142,9 @@ export class UsuarioController {
   
             if (!usuario) {
                 logger.error({
-                    message: `O usuário ${id} não foi encontrado.`,
+                    message: `O usuário ID: ${usuarioAutenticado.id} não foi encontrado.`,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
@@ -161,13 +159,17 @@ export class UsuarioController {
             };
   
             logger.info({
-                message: `Usuário ${usuario.id} visualizado com sucesso por ${req.usuario.nome}`,
+                message: `Ação de visualização de perfil realizada. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
   
             res.json(usuarioFormatado);
         } catch (error) {
             logger.error({
-                message:`Erro ao visualizar perfil do usuário por ${req.usuario.nome} ${JSON.stringify(error)}`,
+                message: `Ocorreu um erro ao tentar visualizar o perfil. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}. Detalhes do erro: ${JSON.stringify(error)}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
             return next(error);
         }
@@ -175,6 +177,9 @@ export class UsuarioController {
   
     //GET - Controller para listar um usuário (por ID) ou todos os usuários
     async index(req: Request, res: Response, next: NextFunction) {
+     
+        const usuarioAutenticado = req.usuario;
+      
         try {
             const { id } = req.params;
   
@@ -196,7 +201,9 @@ export class UsuarioController {
   
                 if (!usuario) {
                     logger.error({
-                        message: `O usuário ${id} não foi encontrado por ${req.usuario.nome}.`,
+                        message: `O usuário com ID ${id} não foi encontrado. Ação realizada por: ${usuarioAutenticado.nome}.`,
+                        method: req.method,
+                        url: req.originalUrl,
                     });
                     return next(new AppError('O usuário não foi encontrado.', 404));
                 }
@@ -211,18 +218,25 @@ export class UsuarioController {
                 };
   
                 logger.info({
-                    message: `Busca realizada por ${req.usuario.nome} para visualizar o usuário ${usuario.nome} com sucesso.`,
+                    message: `O usuário ${usuarioAutenticado.nome} realizou uma busca bem-sucedida para visualizar o perfil do usuário ${usuario.nome}.`,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
   
                 res.json(usuarioFormatado);
+
             } else {
                 // Se nenhum ID é fornecido, listamos todos os usuários (restringido por permissão)
-                const { funcao } = req.usuario;
+                //const { funcao } = req.usuario;
   
-                if (funcao !== 'Admin' && funcao !== 'Supervisor') {
+                if (usuarioAutenticado.funcao !== 'Admin' && usuarioAutenticado.funcao !== 'Supervisor') {
+
                     logger.error({
-                        message: `${req.usuario.nome} tentou listar todos os usuários sem permissão adequada.`,
+                        message: `Ação não autorizada: O usuário ${usuarioAutenticado.nome} tentou listar todos os usuários sem a permissão adequada.`,
+                        method: req.method,
+                        url: req.originalUrl,
                     });
+
                     return next(new AppError('Somente um Admin ou Supervisor podem listar todos os usuários.', 401));
                 }
   
@@ -236,16 +250,31 @@ export class UsuarioController {
                         criado_em: true,
                     }
                 });
-  
-                logger.info({
-                    message: `Listagem de todos os usuários realizada por ${req.usuario.nome} com sucesso.`,
+
+                const usuariosFormatados = usuarios.map((usuario) => {
+                    return {
+                        id: usuario.id,
+                        nome: usuario.nome,
+                        email: usuario.email,
+                        funcao: usuario.funcao,
+                        avatar: usuario.avatar,
+                        criado_em: usuario.criado_em ? FormatDate(usuario.criado_em) : undefined,
+                    };
                 });
   
-                return res.json(usuarios);
+                logger.info({
+                    message: `O usuário ${usuarioAutenticado.nome} realizou com sucesso a listagem de todos os usuários.`,
+                    method: req.method,
+                    url: req.originalUrl,
+                });
+  
+                return res.json(usuariosFormatados);
             }
         } catch (error) {
             logger.error({
-                message:`Erro ao listar usuários por ${req.usuario.nome} ${JSON.stringify(error)}`,
+                message: `Ocorreu um erro ao tentar listar os usuários por ${usuarioAutenticado.nome}. Detalhes do erro: ${JSON.stringify(error)}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
             return next(error);
         }
@@ -253,13 +282,16 @@ export class UsuarioController {
     
     //PUT- Controller para atualizar a senha - OK
     async alterarSenha(req: Request, res: Response, next: NextFunction) {
+        const usuarioAutenticado = req.usuario;
         try {
             const { senhaAtual, novaSenha, confirmarSenha } = req.body;
-            const usuario_id = req.usuario.id;
+           
 
             if (!senhaAtual || !novaSenha || !confirmarSenha) {
                 logger.error({
                     message: 'Informe todos os campos (senha atual, nova senha e confirmar senha).',
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('Informe todos os campos (senha atual, nova senha e confirmar senha).'));
             }
@@ -267,6 +299,8 @@ export class UsuarioController {
             if (novaSenha.length < 6) {
                 logger.error({
                     message: 'A nova senha deve ter pelo menos 6 caracteres.',
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('A nova senha deve ter pelo menos 6 caracteres.'));
             }
@@ -274,6 +308,8 @@ export class UsuarioController {
             if (novaSenha !== confirmarSenha) {
                 logger.error({
                     message: 'A nova senha e a confirmação de senha não correspondem.',
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('A nova senha e a confirmação de senha não correspondem.'));
             }
@@ -281,13 +317,15 @@ export class UsuarioController {
             // Verifique se a senha atual corresponde à senha registrada no banco de dados
             const usuario = await prisma.usuario.findUnique({
                 where: {
-                    id: usuario_id
+                    id: usuarioAutenticado.id
                 },
             });
 
             if (!usuario) {
                 logger.error({
-                    message: `O usuário ${usuario_id} não foi encontrado.`,
+                    message: `Nenhum usuário com o ID fornecido (${usuarioAutenticado.id}) foi encontrado para alteração de senha.`,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
@@ -297,6 +335,8 @@ export class UsuarioController {
             if (!senhaCorreta) {
                 logger.error({
                     message: 'A senha atual está incorreta.',
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('A senha atual está incorreta.'));
             }
@@ -306,7 +346,7 @@ export class UsuarioController {
 
             await prisma.usuario.update({
                 where: {
-                    id: usuario_id
+                    id: usuarioAutenticado.id
                 },
                 data: {
                     senha_hash: novaSenhaCriptografada,
@@ -314,7 +354,9 @@ export class UsuarioController {
             });
 
             logger.info({
-                message: `Usuário ${req.usuario.nome} alterou a senha com sucesso.`,
+                message: `Usuário ${usuarioAutenticado.nome} alterou a senha com sucesso.`,
+                method: req.method,
+                url: req.originalUrl,
             });
 
             res.status(201).json({
@@ -323,7 +365,9 @@ export class UsuarioController {
 
         } catch (error) {
             logger.error({
-                message: `Erro ao alterar a senha do usuário por ${req.usuario.nome} ${JSON.stringify(error)}`,
+                message: `Erro ao alterar a senha do usuário por ${usuarioAutenticado.nome} ${JSON.stringify(error)}`,
+                method: req.method,
+                url: req.originalUrl,
             });
             return next(error);
         }
@@ -331,52 +375,59 @@ export class UsuarioController {
 
     //PUT- Controller para editar o perfil do usuário - OK
     async editarPerfil(req: Request, res: Response, next: NextFunction) {
+      
+        const usuarioAutenticado = req.usuario;
+      
         try {
-            const usuarioAtual = req.usuario;
-  
-            if (!usuarioAtual) {
+            if (!usuarioAutenticado) {
                 logger.error({
                     message: 'O usuário não foi encontrado.',
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
   
             const dadosAtualizados = usuarioSchemaUpdate.parse(req.body);
 
-            if (dadosAtualizados.funcao && (usuarioAtual.funcao !== 'Admin' && usuarioAtual.funcao !== 'Supervisor')) {
+            if (dadosAtualizados.funcao && (usuarioAutenticado.funcao !== 'Admin' && usuarioAutenticado.funcao !== 'Supervisor')) {
                 logger.error({
                     message: 'O usuário não tem permissão para alterar a função.',
+                    method: req.method,
+                    url: req.originalUrl,
                 });
                 return next(new AppError('Você não tem permissão para alterar a função.', 403));
             }
 
             const usuarioAtualizado = await prisma.usuario.update({
                 where: {
-                    id: usuarioAtual.id
+                    id: usuarioAutenticado.id
                 },
                 data: {
-                    nome: dadosAtualizados.nome || usuarioAtual.nome,
-                    email: dadosAtualizados.email || usuarioAtual.email,
-                    funcao: dadosAtualizados.funcao || usuarioAtual.funcao,
+                    nome: dadosAtualizados.nome || usuarioAutenticado.nome,
+                    email: dadosAtualizados.email || usuarioAutenticado.email,
+                    funcao: dadosAtualizados.funcao || usuarioAutenticado.funcao,
                 },
             });
 
+       
             logger.info({
                 message: `Usuário ${usuarioAtualizado.id} editou o perfil com sucesso.`,
+                method: req.method,
+                url: req.originalUrl,
             });
 
             res.json({
+                'message': 'Perfil atualizado com sucesso.',
                 ...usuarioAtualizado,
                 senha_hash: undefined,
+                criado_em: usuarioAtualizado.criado_em ? FormatDate(usuarioAtualizado.criado_em) : undefined,
             });
         } catch (error) {
-            if (error instanceof z.ZodError) {
-                // Trate os erros de validação aqui
-                return res.status(400).json({ error: error.errors });
-            }
-  
             logger.error({
-                message:`Erro ao editar perfil do usuário por ${req.usuario.nome} ${JSON.stringify(error)}`,
+                message:`Erro ao editar perfil do usuário por ${usuarioAutenticado.nome} ${JSON.stringify(error)}`,
+                method: req.method,
+                url: req.originalUrl,
             });
             return next(error);
         }

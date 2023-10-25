@@ -62,7 +62,9 @@ export class LoginController {
 
                 // Registrar a ação de login no log
                 logger.info({
-                    message: `Login realizado por: ${usuario.nome} (ID: ${usuario.id}).`,
+                    message: `Ação de login realizada. Usuário: ${usuario.nome} - ID: ${usuario.id}.`,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
 
                 // Enviar a resposta com os tokens e os detalhes do usuário
@@ -79,20 +81,20 @@ export class LoginController {
                 // Lidar com erros durante o processo de autenticação
                 if (usuario) {
                     logger.error({
-                        message: `Erro ao realizar login para: ${usuario.nome} (ID: ${usuario.id}). Motivo: ${JSON.stringify(error)}`,
+                        message: `Erro ao realizar login. Usuário: ${usuario.nome} - ID: ${usuario.id}. Motivo: ${JSON.stringify(error)}.`,
+                        method: req.method,
+                        url: req.originalUrl,
                     });
                 } else {
                     logger.error({
-                        message: `Erro ao realizar login para: ${email}. Motivo: ${JSON.stringify(error)}`,
+                        message: `Erro ao realizar login. Email: ${email}. Motivo: ${JSON.stringify(error)}.`,
+                        method: req.method,
+                        url: req.originalUrl,
                     });
                 }
                 return next(error);
             }
         } catch (error) {
-            // Lidar com erros de validação do corpo da solicitação
-            logger.error({
-                message: `Erro ao validar o corpo da solicitação: ${JSON.stringify(error)}`,
-            });
             return next(error);
         }
     }

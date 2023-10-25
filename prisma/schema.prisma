@@ -12,16 +12,16 @@ datasource db {
 
 //**Models de Usuário e Autenticação**
 model Usuario {
-  id                   String            @id @default(uuid())
-  nome                 String
-  email                String            @unique
-  avatar               String?
-  funcao               FuncaoUsuario     @default(Analista)
-  senha_hash           String
-  criado_em            DateTime          @default(now())
-  token_atualizacao    TokenAtualizacao?
-  relatoriosCriados    Relatorio[]       @relation("CriadorRelatorio")
-  relatoriosPermitidos Relatorio[]       @relation("UsuariosPermitidosParaRelatorio")
+  id                    String            @id @default(uuid())
+  nome                  String
+  email                 String            @unique
+  avatar                String?
+  funcao                FuncaoUsuario     @default(Analista)
+  senha_hash            String
+  criado_em             DateTime          @default(now())
+  token_atualizacao     TokenAtualizacao?
+  relatorios_criados    Relatorio[]       @relation("Criador_Relatorio")
+  relatorios_permitidos Relatorio[]       @relation("Usuarios_Permitidos_Para_Relatorio")
 
   @@map("usuarios")
 }
@@ -33,7 +33,7 @@ model TokenAtualizacao {
   usuario    Usuario  @relation(fields: [usuario_id], references: [id])
   criado_em  DateTime @default(now())
 
-  @@map("tokens_atualizacao")
+  @@map("tokensAtualizacao")
 }
 
 enum FuncaoUsuario {
@@ -45,23 +45,24 @@ enum FuncaoUsuario {
 
 //**Models de Relatório**
 model Relatorio {
-  id                    String          @id @default(uuid())
-  numero_processo       String          @unique
-  cliente               String
-  cnpj                  String
-  data_entrada          DateTime        @default(now())
-  data_emissao          DateTime?
-  status                StatusRelatorio @default(Formalizando)
-  usuarioResponsavel    Usuario         @relation("CriadorRelatorio", fields: [usuarioResponsavel_id], references: [id])
-  usuarioResponsavel_id String
-  usuariosPermitidos    Usuario[]       @relation("UsuariosPermitidosParaRelatorio")
+  id                     String           @id @default(uuid())
+  numero_processo        String           @unique
+  cliente                String
+  cnpj                   String
+  data_entrada           DateTime         @default(now())
+  data_emissao           DateTime?
+  status                 Status_Relatorio @default(Formalizando)
+  usuario_responsavel    Usuario          @relation("Criador_Relatorio", fields: [usuario_responsavel_id], references: [id])
+  usuario_responsavel_id String
+  usuarios_Permitidos    Usuario[]        @relation("Usuarios_Permitidos_Para_Relatorio")
 
-  formaulariosDoRelatorio FormulariosDoRelatorio[]
+  formularios_selecionados Tipo_Formulario[]
+  formularios              FormulariosDoRelatorio?
 
   @@map("relatorios")
 }
 
-enum StatusRelatorio {
+enum Status_Relatorio {
   Formalizando
   Finalizado
   Aprovado
@@ -70,12 +71,27 @@ enum StatusRelatorio {
 }
 
 //**Models de Etapa**
-enum TipoFormulario {
-  stepClienteSegurado
-  stepDeclaracaoMotoristaAjudante
+enum Tipo_Formulario {
+  form_1_cliente_segurado
+  form_2_caracteristica_sinistro
+  form_3_cronologia_sinistro
+  form_4_do_carregamento
+  form_5_motorista
+  form_6_ajudantes
+  form_7_veiculo_transportador
+  form_8_orgao_policial
+  form_9_gerenciamento_risco_veiculo
+  form_10_sistemas_protecao_carregamento
+  form_11_declaracao_motorista_ajudante
+  form_12_gerenciamento_risco_deposito
+  form_13_locais_evento
+  form_14_resumo_averiguacoes
+  form_15_recuperacao_carga
+  form_16_anexos_fotograficos
+  form_17_conclusao
 }
 
-enum StatusFormulario {
+enum Status_Formulario {
   Pendente
   Formalizando
   Finalizado
@@ -85,45 +101,259 @@ enum StatusFormulario {
 }
 
 model FormulariosDoRelatorio {
-  id               String           @id @default(uuid())
-  tipoFormulario   TipoFormulario
-  statusFormulario StatusFormulario
+  id              String  @id @default(uuid())
+  numero_processo String? @unique
 
-  numeroProcesso String? @unique
-
-  formClienteSegurado    FormClienteSegurado? @relation(fields: [formClienteSegurado_id], references: [id])
-  formClienteSegurado_id String?              @unique
-
-  formDeclaracaoMotoristaAjudante    FormDeclaracaoMotoristaAjudante? @relation(fields: [formDeclaracaoMotoristaAjudante_id], references: [id])
-  formDeclaracaoMotoristaAjudante_id String?                          @unique
-
-  relatorio_id String
-  relatorio    Relatorio @relation(fields: [relatorio_id], references: [id])
+  form1_Cliente_Segurado                   Form1ClienteSegurado?               @relation(fields: [form1_Cliente_Segurado_id], references: [id])
+  form1_Cliente_Segurado_id                String?                             @unique
+  form2_Caracteristica_Sinistro            Form2CaracteristicaSinistro?        @relation(fields: [form2_Caracteristica_Sinistro_id], references: [id])
+  form2_Caracteristica_Sinistro_id         String?                             @unique
+  form3_Cronologia_Sinistro                Form3CronologiaSinistro?            @relation(fields: [form3_Cronologia_Sinistro_id], references: [id])
+  form3_Cronologia_Sinistro_id             String?                             @unique
+  form4_Do_Carregamento                    Form4DoCarregamento?                @relation(fields: [form4_Do_Carregamento_id], references: [id])
+  form4_Do_Carregamento_id                 String?                             @unique
+  form5_Motorista                          Form5Motorista?                     @relation(fields: [form5_Motorista_id], references: [id])
+  form5_Motorista_id                       String?                             @unique
+  form6_Ajudantes                          Form6Ajudantes?                     @relation(fields: [form6_Ajudantes_id], references: [id])
+  form6_Ajudantes_id                       String?                             @unique
+  form7_Veiculo_Transportador              Form7VeiculoTransportador?          @relation(fields: [form7_Veiculo_Transportador_id], references: [id])
+  form7_Veiculo_Transportador_id           String?                             @unique
+  form8_Orgao_Policial                     Form8OrgaoPolicial?                 @relation(fields: [form8_Orgao_Policial_id], references: [id])
+  form8_Orgao_Policial_id                  String?                             @unique
+  form9_Gerenciamento_Risco_Veiculo        Form9GerenciamentoRiscoVeiculo?     @relation(fields: [form9_Gerenciamento_Risco_Veiculo_id], references: [id])
+  form9_Gerenciamento_Risco_Veiculo_id     String?                             @unique
+  form10_Sistemas_Protecao_Carregamento    Form10SistemasProtecaoCarregamento? @relation(fields: [form10_Sistemas_Protecao_Carregamento_id], references: [id])
+  form10_Sistemas_Protecao_Carregamento_id String?                             @unique
+  form11_Declaracao_Motorista_Ajudante     Form11DeclaracaoMotoristaAjudante?  @relation(fields: [form11_Declaracao_Motorista_Ajudante_id], references: [id])
+  form11_Declaracao_Motorista_Ajudante_id  String?                             @unique
+  form12_Gerenciamento_Risco_Deposito      Form12GerenciamentoRiscoDeposito?   @relation(fields: [form12_Gerenciamento_Risco_Deposito_id], references: [id])
+  form12_Gerenciamento_Risco_Deposito_id   String?                             @unique
+  form13_Locais_Evento                     Form13LocaisEvento?                 @relation(fields: [form13_Locais_Evento_id], references: [id])
+  form13_Locais_Evento_id                  String?                             @unique
+  form14_Resumo_Averiguacoes               Form14ResumoAveriguacoes?           @relation(fields: [form14_Resumo_Averiguacoes_id], references: [id])
+  form14_Resumo_Averiguacoes_id            String?                             @unique
+  form15_Recuperacao_Carga                 Form15RecuperacaoCarga?             @relation(fields: [form15_Recuperacao_Carga_id], references: [id])
+  form15_Recuperacao_Carga_id              String?                             @unique
+  form16_Anexos_Fotograficos               Form16AnexosFotograficos?           @relation(fields: [form16_Anexos_Fotograficos_id], references: [id])
+  form16_Anexos_Fotograficos_id            String?                             @unique
+  form17_Conclusao                         Form17Conclusao?                    @relation(fields: [form17_Conclusao_id], references: [id])
+  form17_Conclusao_id                      String?                             @unique
+  relatorio                                Relatorio                           @relation(fields: [relatorio_id], references: [id])
+  relatorio_id                             String                              @unique
 
   @@map("formularios_do_relatorio")
 }
 
-model FormClienteSegurado {
-  id                      String                  @id @default(uuid())
-  numero_etapa            String                  @default("1")
-  status                  StatusFormulario[]
-  nomeCliente             String?
-  cnpj                    String?
-  numero_processo         String?                 @unique
-  FormaulariosDoRelatorio FormulariosDoRelatorio?
+model Form1ClienteSegurado {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("1")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  nome_cliente String?
+  cnpj         String?
+
+  formulario_associado FormulariosDoRelatorio?
 
   @@map("form_cliente_segurado")
 }
 
-model FormDeclaracaoMotoristaAjudante {
-  id                      String                  @id @default(uuid())
-  numero_etapa            String                  @default("11")
-  status                  StatusFormulario[]
-  arquivos_declaracoes    Arquivo[]
-  numero_processo         String?                 @unique
-  FormaulariosDoRelatorio FormulariosDoRelatorio?
+model Form2CaracteristicaSinistro {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("2")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  // Adicione os outros campos específicos deste formulário aqui
+  // Exemplo: campo1: TipoDoCampo1
+  // campo2: TipoDoCampo2
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_caracteristica_sinistro")
+}
+
+model Form3CronologiaSinistro {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("3")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_cronologia_sinistro")
+}
+
+model Form4DoCarregamento {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("4")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_do_carregamento")
+}
+
+model Form5Motorista {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("5")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_motorista")
+}
+
+model Form6Ajudantes {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("6")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_ajudantes")
+}
+
+model Form7VeiculoTransportador {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("7")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_veiculo_transportador")
+}
+
+model Form8OrgaoPolicial {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("8")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_orgao_policial")
+}
+
+model Form9GerenciamentoRiscoVeiculo {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("9")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_gerenciamento_risco_veiculo")
+}
+
+model Form10SistemasProtecaoCarregamento {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("10")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_sistemas_protecao_carregamento")
+}
+
+model Form11DeclaracaoMotoristaAjudante {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("11")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  arquivos_declaracoes Arquivo[]
+
+  formulario_associado FormulariosDoRelatorio?
 
   @@map("form_declaracao_motorista_ajudante")
+}
+
+model Form12GerenciamentoRiscoDeposito {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("12")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_gerenciamento_risco_deposito")
+}
+
+model Form13LocaisEvento {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("13")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  // Adicione os outros campos específicos deste formulário aqui
+  // Exemplo: campo1: TipoDoCampo1
+  // campo2: TipoDoCampo2
+
+  foto_local_da_Abordagem Arquivo[]
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_locais_evento")
+}
+
+model Form14ResumoAveriguacoes {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("14")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_resumo_averiguacoes")
+}
+
+model Form15RecuperacaoCarga {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("15")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_recuperacao_carga")
+}
+
+model Form16AnexosFotograficos {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("16")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  arquivos_declaracoes Arquivo[]
+
+  // Adicione os outros campos específicos deste formulário aqui
+  // Exemplo: campo1: TipoDoCampo1
+  // campo2: TipoDoCampo2
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_anexos_fotograficos")
+}
+
+model Form17Conclusao {
+  id              String            @id @default(uuid())
+  numero_etapa    String            @default("17")
+  numero_processo String?           @unique
+  status          Status_Formulario @default(Pendente)
+
+  // Adicione os outros campos específicos deste formulário aqui
+  // Exemplo: campo1: TipoDoCampo1
+  // campo2: TipoDoCampo2
+
+  formulario_associado FormulariosDoRelatorio?
+
+  @@map("form_conclusao")
 }
 
 //**Model de Arquivo**
@@ -135,8 +365,12 @@ model Arquivo {
   localizacao     String
   numero_processo String? @unique
 
-  formDeclaracaoMotoristaAjudante    FormDeclaracaoMotoristaAjudante? @relation(fields: [formDeclaracaoMotoristaAjudante_id], references: [id])
-  formDeclaracaoMotoristaAjudante_id String?
+  form11_Declaracao_Motorista_Ajudante    Form11DeclaracaoMotoristaAjudante? @relation(fields: [form11_Declaracao_Motorista_Ajudante_id], references: [id])
+  form11_Declaracao_Motorista_Ajudante_id String?
+  form16_Anexos_Fotograficos              Form16AnexosFotograficos?          @relation(fields: [form16_Anexos_Fotograficos_id], references: [id])
+  form16_Anexos_Fotograficos_id           String?
+  form13_Locais_Evento                    Form13LocaisEvento?                @relation(fields: [form13_Locais_Evento_id], references: [id])
+  form13_Locais_Evento_id                 String?
 
   @@map("arquivos")
 }

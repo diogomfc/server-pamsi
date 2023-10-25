@@ -1,5 +1,6 @@
 import winston, { format, transports } from 'winston';
 import 'winston-daily-rotate-file';
+import { FormatDate } from './DateUtils';
 
 // Criando um filtro personalizado
 const infoOnly = format((info) => {
@@ -14,11 +15,13 @@ const transportInfo = new transports.DailyRotateFile({
     zippedArchive: true,
     maxFiles: '7d',
     format: format.combine(
-        infoOnly(), // Aplicando o filtro personalizado
-        //format.colorize({ all: true }), // Habilita a colorização
+        infoOnly(),
         format.printf((info) => {
             const emoji = info.level === 'info' ? '🔵' : '';
-            return `${new Date().toISOString()} ${emoji} [${info.level}]: message: ${info.message}`;
+            const formattedDate = FormatDate(new Date());
+            const method = info.method ? `METHOD: ${info.method}` : '';
+            const url = info.url ? `URL: ${info.url}` : '';
+            return `${emoji} [${info.level}] - ${formattedDate}\n${method}\n${url}\nMESSAGE: ${info.message}\n\n`;
         }),
     ),
 });
@@ -33,7 +36,10 @@ const transportError = new transports.DailyRotateFile({
     format: format.combine(
         format.printf((info) => {
             const emoji = info.level === 'error' ? '❌' : '';
-            return `${new Date().toISOString()} ${emoji} [${info.level}]: message: ${info.message}`;
+            const formattedDate = FormatDate(new Date());
+            const method = info.method ? `METHOD: ${info.method}` : '';
+            const url = info.url ? `URL: ${info.url}` : '';
+            return `${emoji} [${info.level}] - ${formattedDate}\n${method}\n${url}\nMESSAGE: ${info.message}\n\n`;
         }),
     ),
 });

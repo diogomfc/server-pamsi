@@ -4,52 +4,51 @@ import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 import { LocalStorage } from '@/providers/LocalStorageProvider';
-import path from 'path';
+
 
 export class UsuarioAvatarController {
-   
     //PATCH - Controller para criar um novo usuário
     async create(req: Request, res: Response, next: NextFunction) {
+        
+        const avatarPath = req.file?.path as string;
+        const avatarFilename = req.file?.filename as string;
+        const armazenamentoDisco = new LocalStorage();
+
+        //buscar o usuário autenticado
+        const usuarioAutenticado = req.usuario;
+      
         try {
-            const arquivoAvatar = req.file?.filename as string;
-  
-            if (!arquivoAvatar) {
-                logger.error({
-                    message: 'Arquivo de avatar não fornecido.',
-                });
+            if (!avatarFilename) {
                 return next(new AppError('Arquivo de avatar não fornecido.', 401));
             }
-  
-            const localStorage = new LocalStorage();
-  
             try {
-                const arquivoAvatarBaseNome = path.basename(arquivoAvatar);
-                const filename = await localStorage.saveFile(arquivoAvatarBaseNome);
-  
+                const avatarNovo = await armazenamentoDisco.saveFile(avatarFilename);
                 const usuario = await prisma.usuario.findUnique({
                     where: {
-                        id: req.usuario.id,
+                        id:  usuarioAutenticado.id,
                     },
                 });
   
                 let logMessage = '';
-  
+
+                // Se o usuário já possui um avatar, remova o avatar antigo do armazenamento no disco
                 if (usuario && usuario.avatar) {
-                    // Se o usuário já possui um avatar, remova o avatar antigo do armazenamento no disco
-                    const avatarAntigo = path.basename(usuario.avatar);
-                    await localStorage.deleteFile(avatarAntigo);
-                    logMessage = `Avatar do usuário ${usuario.nome} (ID: ${usuario.id}) atualizado com sucesso.`;
+
+                    const avatarAntigo = usuario.avatar;
+                    await armazenamentoDisco.deleteFile(avatarAntigo);
+                    
+                    logMessage = `Avatar do usuário ${usuario.nome} - ID: ${usuario.id} atualizado com sucesso.`;
                 } else {
-                    logMessage = `Avatar adicionado ao usuário ${usuario?.nome} (ID: ${usuario?.id}).`;
+                    logMessage = `Avatar adicionado ao usuário ${usuario?.nome} - ID: ${usuario?.id}.`;
                 }
   
                 // Atualize o usuário com o caminho do novo arquivo de avatar
                 const usuarioAtualizado = await prisma.usuario.update({
                     where: {
-                        id: req.usuario.id,
+                        id:  usuarioAutenticado.id,
                     },
                     data: {
-                        avatar: filename,
+                        avatar: avatarNovo,
                     },
                 });
   
@@ -61,22 +60,28 @@ export class UsuarioAvatarController {
   
                 logger.info({
                     message: logMessage,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
   
                 return res.json(usuarioComDataFormatada);
             } catch (error) {
                 // Se ocorrer um erro, remova o arquivo do diretório temporário
-                await localStorage.deleteFile(req.file?.path as string);
+                await localStorage.deleteFile(avatarPath);
   
                 logger.error({
-                    message: `Erro ao atualizar o usuário: ${JSON.stringify(error)}`,
+                    message: `Erro ao atualizar o usuário. Detalhes do erro: ${JSON.stringify(error)}.`,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
-  
+
                 return next(error);
             }
         } catch (error) {
             logger.error({
-                message: `Erro ao processar a solicitação: ${JSON.stringify(error)}`,
+                message: `Erro ao processar a solicitação. Detalhes do erro: ${JSON.stringify(error)}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
   
             return next(error);
@@ -85,35 +90,33 @@ export class UsuarioAvatarController {
   
     //DELETE - Controller para excluir o avatar do usuário
     async delete(req: Request, res: Response, next: NextFunction) {
-        try {
-            const usuario_id = req.usuario.id;
 
+        const armazenamentoDisco = new LocalStorage();
+        const usuarioAutenticado = req.usuario;
+      
+        try {
             const usuario = await prisma.usuario.findUnique({
                 where: {
-                    id: usuario_id,
+                    id: usuarioAutenticado.id,
                 },
             });
 
             if (!usuario || !usuario.avatar) {
                 logger.error({
-                    message: `Usuário ${usuario_id} não possui um avatar para excluir.`,
+                    message: `Não foi possível encontrar o usuário ou o usuário não possui um avatar. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}.`,
+                    method: req.method,
+                    url: req.originalUrl,
                 });
+            
                 return next(new AppError('O usuário não possui um avatar para excluir.', 404));
             }
-
-            // Extrair o nome do arquivo do avatar
-            const avatarAntigo = path.basename(usuario.avatar);
-
-            // Instanciar o provider de armazenamento em disco
-            const localStorage = new LocalStorage();
-
             // Remover o avatar do armazenamento no disco
-            await localStorage.deleteFile(avatarAntigo);
+            await armazenamentoDisco.deleteFile(usuario.avatar);
 
             // Atualizar o usuário no banco de dados para remover o avatar
             const usuarioAtualizado = await prisma.usuario.update({
                 where: {
-                    id: usuario_id,
+                    id: usuarioAutenticado.id,
                 },
                 data: {
                     avatar: null, // Removendo o caminho do arquivo de avatar
@@ -121,7 +124,9 @@ export class UsuarioAvatarController {
             });
 
             logger.info({
-                message: `Avatar do usuário ${usuario.nome} (ID: ${usuario.id}) excluído com sucesso.`,
+                message: `Avatar excluído com sucesso. Usuário: ${usuario.nome} - ID: ${usuario.id}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
 
             const usuarioComDataFormatada = {
@@ -133,9 +138,10 @@ export class UsuarioAvatarController {
             return res.json(usuarioComDataFormatada);
         } catch (error) {
             logger.error({
-                message: `Erro ao excluir o avatar do usuário: ${JSON.stringify(error)}`,
+                message: `Erro ao excluir o avatar. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}. Detalhes do erro: ${JSON.stringify(error)}.`,
+                method: req.method,
+                url: req.originalUrl,
             });
-
             return next(error);
         }
     }
