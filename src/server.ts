@@ -7,7 +7,6 @@ import { env } from './env';
 import { AppError } from './utils/AppError';
 import { routes } from './routes';
 
-
 const app = express();
 
 //Habilitar o express para receber dados em formato json
