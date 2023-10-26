@@ -33,7 +33,7 @@ model TokenAtualizacao {
   usuario    Usuario  @relation(fields: [usuario_id], references: [id])
   criado_em  DateTime @default(now())
 
-  @@map("tokensAtualizacao")
+  @@map("tokens_atualizacao")
 }
 
 enum FuncaoUsuario {
@@ -54,7 +54,7 @@ model Relatorio {
   status                 Status_Relatorio @default(Formalizando)
   usuario_responsavel    Usuario          @relation("Criador_Relatorio", fields: [usuario_responsavel_id], references: [id])
   usuario_responsavel_id String
-  usuarios_Permitidos    Usuario[]        @relation("Usuarios_Permitidos_Para_Relatorio")
+  usuarios_permitidos    Usuario[]        @relation("Usuarios_Permitidos_Para_Relatorio")
 
   formularios_selecionados Tipo_Formulario[]
   formularios              FormulariosDoRelatorio?
@@ -72,23 +72,23 @@ enum Status_Relatorio {
 
 //**Models de Etapa**
 enum Tipo_Formulario {
-  form_1_cliente_segurado
-  form_2_caracteristica_sinistro
-  form_3_cronologia_sinistro
-  form_4_do_carregamento
-  form_5_motorista
-  form_6_ajudantes
-  form_7_veiculo_transportador
-  form_8_orgao_policial
-  form_9_gerenciamento_risco_veiculo
-  form_10_sistemas_protecao_carregamento
-  form_11_declaracao_motorista_ajudante
-  form_12_gerenciamento_risco_deposito
-  form_13_locais_evento
-  form_14_resumo_averiguacoes
-  form_15_recuperacao_carga
-  form_16_anexos_fotograficos
-  form_17_conclusao
+  form1_Cliente_Segurado
+  form2_Caracteristica_Sinistro
+  form3_Cronologia_Sinistro
+  form4_Do_Carregamento
+  form5_Motorista
+  form6_Ajudantes
+  form7_Veiculo_Transportador
+  form8_Orgao_Policial
+  form9_Gerenciamento_Risco_Veiculo
+  form10_Sistemas_Protecao_Carregamento
+  form11_Declaracao_Motorista_Ajudante
+  form12_Gerenciamento_Risco_Deposito
+  form13_Locais_Evento
+  form14_Resumo_Averiguacoes
+  form15_Recuperacao_Carga
+  form16_Anexos_Fotograficos
+  form17_Conclusao
 }
 
 enum Status_Formulario {
@@ -155,7 +155,7 @@ model Form1ClienteSegurado {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_cliente_segurado")
+  @@map("form1_Cliente_Segurado")
 }
 
 model Form2CaracteristicaSinistro {
@@ -170,7 +170,7 @@ model Form2CaracteristicaSinistro {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_caracteristica_sinistro")
+  @@map("form2_Caracteristica_Sinistro")
 }
 
 model Form3CronologiaSinistro {
@@ -181,7 +181,7 @@ model Form3CronologiaSinistro {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_cronologia_sinistro")
+  @@map("form3_Cronologia_Sinistro")
 }
 
 model Form4DoCarregamento {
@@ -192,7 +192,7 @@ model Form4DoCarregamento {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_do_carregamento")
+  @@map("form4_Do_Carregamento")
 }
 
 model Form5Motorista {
@@ -203,7 +203,7 @@ model Form5Motorista {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_motorista")
+  @@map("form5_Motorista")
 }
 
 model Form6Ajudantes {
@@ -214,7 +214,7 @@ model Form6Ajudantes {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_ajudantes")
+  @@map("form6_Ajudantes")
 }
 
 model Form7VeiculoTransportador {
@@ -225,7 +225,7 @@ model Form7VeiculoTransportador {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_veiculo_transportador")
+  @@map("form7_Veiculo_Transportador")
 }
 
 model Form8OrgaoPolicial {
@@ -236,7 +236,7 @@ model Form8OrgaoPolicial {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_orgao_policial")
+  @@map("form8_Orgao_Policial")
 }
 
 model Form9GerenciamentoRiscoVeiculo {
@@ -247,7 +247,7 @@ model Form9GerenciamentoRiscoVeiculo {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_gerenciamento_risco_veiculo")
+  @@map("form9_Gerenciamento_Risco_Veiculo")
 }
 
 model Form10SistemasProtecaoCarregamento {
@@ -258,7 +258,7 @@ model Form10SistemasProtecaoCarregamento {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_sistemas_protecao_carregamento")
+  @@map("form10_Sistemas_Protecao_Carregamento")
 }
 
 model Form11DeclaracaoMotoristaAjudante {
@@ -271,7 +271,7 @@ model Form11DeclaracaoMotoristaAjudante {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_declaracao_motorista_ajudante")
+  @@map("form11_Declaracao_Motorista_Ajudante")
 }
 
 model Form12GerenciamentoRiscoDeposito {
@@ -282,7 +282,7 @@ model Form12GerenciamentoRiscoDeposito {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_gerenciamento_risco_deposito")
+  @@map("form12_Gerenciamento_Risco_Deposito")
 }
 
 model Form13LocaisEvento {
@@ -299,7 +299,7 @@ model Form13LocaisEvento {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_locais_evento")
+  @@map("form13_Locais_Evento")
 }
 
 model Form14ResumoAveriguacoes {
@@ -310,7 +310,7 @@ model Form14ResumoAveriguacoes {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_resumo_averiguacoes")
+  @@map("form14_Resumo_Averiguacoes")
 }
 
 model Form15RecuperacaoCarga {
@@ -321,7 +321,7 @@ model Form15RecuperacaoCarga {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_recuperacao_carga")
+  @@map("form15_Recuperacao_Carga")
 }
 
 model Form16AnexosFotograficos {
@@ -338,7 +338,7 @@ model Form16AnexosFotograficos {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_anexos_fotograficos")
+  @@map("form16_Anexos_Fotograficos")
 }
 
 model Form17Conclusao {
@@ -353,7 +353,7 @@ model Form17Conclusao {
 
   formulario_associado FormulariosDoRelatorio?
 
-  @@map("form_conclusao")
+  @@map("form17_Conclusao")
 }
 
 //**Model de Arquivo**
