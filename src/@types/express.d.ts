@@ -4,8 +4,12 @@ declare namespace Express {
       id: string;
       nome: string;
       email: string;
+      avatar: string?;
       funcao: 'Admin' | 'Analista' | 'Supervisor' | 'Revisor';
     };
-    numero_processo: string | null;
+    relatorio:{
+      id: string;
+      numero_processo: string;
+    }
   }
 }

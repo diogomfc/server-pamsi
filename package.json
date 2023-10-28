@@ -1,5 +1,5 @@
 {
-  "name": "serve-pamsi-api",
+  "name": "server-pamsi-api",
   "version": "1.0.0",
   "description": "API para o sistema de integração da Pamcary",
   "main": "build/server.js",
@@ -12,7 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "5.4.2",
+    "@prisma/client": "5.5.2",
     "bcryptjs": "2.4.3",
     "cors": "2.8.5",
     "dayjs": "1.11.10",
@@ -35,7 +35,7 @@
     "@typescript-eslint/eslint-plugin": "6.8.0",
     "@typescript-eslint/parser": "6.8.0",
     "eslint": "8.52.0",
-    "prisma": "5.4.2",
+    "prisma": "5.5.2",
     "tsup": "7.2.0",
     "tsx": "3.14.0",
     "typescript": "5.2.2"

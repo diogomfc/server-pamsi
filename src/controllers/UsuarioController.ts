@@ -94,6 +94,7 @@ export class UsuarioController {
             };
 
             req.usuario = usuario;
+            
             res.status(201).json({ message: 'Usuário criado com sucesso', usuario });
 
             logger.info({
