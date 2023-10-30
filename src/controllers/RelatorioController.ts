@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
 
-
 import { FormatDate } from '@/utils/DateUtils';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
@@ -24,9 +23,9 @@ export class RelatorioController{
             });
 
             //Validação do body da requisição
-            if (!relatorio.numero_processo || !relatorio.cliente || !relatorio.cnpj) {
-                throw new AppError('Número do processo, cliente e CNPJ são obrigatórios', 400);
-            }
+            // if (!relatorio.numero_processo || !relatorio.cliente || !relatorio.cnpj) {
+            //     throw new AppError('Número do processo, cliente e CNPJ são obrigatórios', 400);
+            // }
               
             //Validar se o numero do processo já existe
             const relatorioExistente = await prisma.relatorio.findFirst({
@@ -45,6 +44,7 @@ export class RelatorioController{
                 data: {
                     numero_processo: relatorio.numero_processo,
                     cliente: relatorio.cliente,
+                    natureza_sinistro: relatorio.natureza_sinistro,
                     cnpj: relatorio.cnpj,
                     usuario_responsavel_id: usuario_responsavel.id,
                     usuarios_permitidos: {

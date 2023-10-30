@@ -45,16 +45,19 @@ enum FuncaoUsuario {
 
 //**Models de Relatório**
 model Relatorio {
-  id                     String           @id @default(uuid())
-  numero_processo        String           @unique
-  cliente                String
-  cnpj                   String
-  data_entrada           DateTime         @default(now())
-  data_emissao           DateTime?
-  status                 Status_Relatorio @default(Formalizando)
-  usuario_responsavel    Usuario          @relation("Criador_Relatorio", fields: [usuario_responsavel_id], references: [id], onDelete: Cascade)
-  usuario_responsavel_id String
-  usuarios_permitidos    Usuario[]        @relation("Usuarios_Permitidos_Para_Relatorio")
+  id                             String            @id @default(uuid())
+  numero_processo                String            @unique
+  natureza_sinistro              Natureza_Sinistro
+  cliente                        String
+  cnpj                           String
+  data_entrada                   DateTime          @default(now())
+  data_emissao                   DateTime?
+  status                         Status_Relatorio  @default(Formalizando)
+  status_recuperacao_carga       String?
+  fato_gerador_recuperacao_carga String?
+  usuario_responsavel            Usuario           @relation("Criador_Relatorio", fields: [usuario_responsavel_id], references: [id], onDelete: Cascade)
+  usuario_responsavel_id         String
+  usuarios_permitidos            Usuario[]         @relation("Usuarios_Permitidos_Para_Relatorio")
 
   formularios_selecionados Tipo_Formulario[]
   formularios              FormulariosDoRelatorio?
@@ -68,6 +71,13 @@ enum Status_Relatorio {
   Aprovado
   Rejeitado
   Emitido
+}
+
+enum Natureza_Sinistro {
+  Roubo
+  Furto
+  Apreensao
+  Outros
 }
 
 //**Models de Etapa**

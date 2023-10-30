@@ -1,11 +1,14 @@
 import { z } from 'zod';
-import { Tipo_Formulario, Status_Relatorio } from '@prisma/client';
+import { Tipo_Formulario, Status_Relatorio, Natureza_Sinistro } from '@prisma/client';
 
 // Esquema para a operação 'create'
 const CreateRelatorioSchema = z.object({
-    numero_processo: z.string(),
-    cliente: z.string(),
-    cnpj: z.string(),
+    numero_processo: z.string().min(5, {message: 'Favor informa o número de processo gerado pela torre de operação.'}),
+    cliente: z.string().min(1, {message: 'Favor informa o nome do cliente.'}),
+    natureza_sinistro: z.nativeEnum(Natureza_Sinistro).refine((value) => {
+        return Object.values(Natureza_Sinistro).includes(value);
+    }, {message: 'Favor informa a natureza do sinistro.'}),
+    cnpj: z.string().min(0, {message: 'Favor informa o CNPJ do cliente.'}),
     data_entrada: z.date().optional(),
     data_emissao: z.date().optional(),
     usuarios_permitidos: z.array(z.string()).optional(),
@@ -16,6 +19,7 @@ const CreateRelatorioSchema = z.object({
 const UpdateRelatorioSchema = z.object({
     numero_processo: z.string().optional(),
     cliente: z.string().optional(),
+    natureza_sinistro: z.nativeEnum(Natureza_Sinistro).optional(),
     cnpj: z.string().optional(),
     data_entrada: z.date().optional(),
     data_emissao: z.date().optional(),
