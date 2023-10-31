@@ -21,11 +21,6 @@ export class RelatorioController{
                 method: req.method,
                 url: req.originalUrl,
             });
-
-            //Validação do body da requisição
-            // if (!relatorio.numero_processo || !relatorio.cliente || !relatorio.cnpj) {
-            //     throw new AppError('Número do processo, cliente e CNPJ são obrigatórios', 400);
-            // }
               
             //Validar se o numero do processo já existe
             const relatorioExistente = await prisma.relatorio.findFirst({
@@ -38,7 +33,6 @@ export class RelatorioController{
                 throw new AppError('Número do processo já existe', 400);
             }
             
-           
             //Cria o relatório
             const criarRelatorio = await prisma.relatorio.create({
                 data: {
@@ -178,7 +172,6 @@ export class RelatorioController{
                 },
             });
 
-          
             //Ordenar os formulários selecionados e incluir a etapa de cada formulário
             criarRelatorio.formularios_selecionados.sort((a, b) => {
                 const regex = /form(\d+)_/;
@@ -443,9 +436,9 @@ export class RelatorioController{
             });
 
             //Validação do body da requisição precisa passar pelo menso um campo a ser atualizado
-            if (!relatorio.numero_processo && !relatorio.cliente && !relatorio.cnpj && !relatorio.status && !relatorio.usuario_responsavel_id && !relatorio.usuarios_permitidos && !relatorio.formularios_selecionados) {
-                throw new AppError('Pelo menos um campo precisa ser atualizado', 400);
-            }
+            // if (!relatorio.numero_processo && !relatorio.cliente && !relatorio.cnpj && !relatorio.status && !relatorio.usuario_responsavel_id && !relatorio.usuarios_permitidos && !relatorio.formularios_selecionados) {
+            //     throw new AppError('Pelo menos um campo precisa ser atualizado', 400);
+            // }
   
             // Validar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({

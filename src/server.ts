@@ -19,36 +19,30 @@ app.use(cors());
 // ROTAS DA APLICAÇÃO
 app.use(routes);
 
-//Tratamento de erros: Verificar se erro vem do lado do CLIENTE ou pelo SERVIDOR
+// Tratamento de erros: Verificar se erro vem do lado do CLIENTE ou pelo SERVIDOR
 app.use((err: ErrorRequestHandler, req: Request, res: Response, next: NextFunction) => {
     if (err instanceof AppError) {
         return res.status(err.statusCode).json({
             status: 'Error de aplicação',
             message: err.message,
         });
-    } else if (err instanceof z.ZodError) {
-        const validationError = err.issues.map((issue) => ({
-            status: 'Erro de cadastro',
+    } 
+
+    if (err instanceof z.ZodError) {
+        const validationErrors = err.issues.map((issue) => ({
             input: issue.path.join('.'),
             message: issue.message,
         }));
 
-        if (validationError.length === 1) {
-            return res.status(400).send(validationError[0]);
-        } else {
-            return res.status(400).send(validationError);
-        }
-
+        return res.status(400).json({
+            status: 'Erro de cadastro',
+            errors: validationErrors,
+        });
     }
+
+    console.error(err);
 
     next();
-
-    if (env.NODE_ENV !== 'production') {
-        console.error(err);
-    } else {
-        // TODO: Deve utilizar um ferramenta de DataDog/NewRelic/Sentry
-    }
-
     return res.status(500).json({
         status: 'error',
         message: 'Internal server error',
