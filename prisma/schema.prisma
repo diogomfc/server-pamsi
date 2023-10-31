@@ -141,20 +141,20 @@ model Form1ClienteSegurado {
   id              String            @id @default(uuid())
   numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
-
-  nome_cliente  String
-  cnpj          String
-  telefone      String
-  celular       String
-  email         String
-  representante String
-  cep           String
-  endereco      String
-  numero        String
-  complemento   String
-  bairro        String
-  cidade        String
-  uf            String
+  data_cadastro   String?
+  nome_cliente    String
+  cnpj            String
+  telefone        String?
+  celular         String?
+  email           String?
+  representante   String?
+  cep             String?
+  endereco        String?
+  numero          String?
+  complemento     String?
+  bairro          String?
+  cidade          String?
+  uf              String?
 
   formulario_associado      FormulariosDoRelatorio? @relation(fields: [formulariosDoRelatorio_id], references: [id], onDelete: Cascade)
   formulariosDoRelatorio_id String                  @unique

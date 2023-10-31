@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { usuarioRouter } from './usuario.routes';
 import { loginRoutes } from './login.routes';
 import { relatorioRouter } from './relatorio.routes';
+import { formRoutes } from './form';
 
 export const routes = Router();
 
@@ -14,4 +15,5 @@ routes.get('/', async (request, response) => {
 routes.use('/usuarios', usuarioRouter);
 routes.use('/login', loginRoutes);
 routes.use('/relatorios', relatorioRouter);
+routes.use('/forms', formRoutes);
 
