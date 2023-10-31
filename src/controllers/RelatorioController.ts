@@ -215,7 +215,7 @@ export class RelatorioController{
 
         } catch (error) {
             logger.error({
-                message: `Erro ao criar relatório para o usuário ${usuario_responsavel.nome} (ID: ${usuario_responsavel.id}): ${JSON.stringify(error)}`,
+                message: `Erro ao criar relatório para o usuário ${usuario_responsavel.nome} (ID: ${usuario_responsavel.id}) Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -422,10 +422,11 @@ export class RelatorioController{
         }
     }
   
-    //PUT - /relatorio/:id -- Responsável por atualizar relatórios
+    //PUT - /relatorio/:id -- Responsável por atualizar relatórios ORIGINAL
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { id } = req.params;
+       
         const relatorio = relatorioSchema.update.parse(req.body);
   
         try {
@@ -435,15 +436,10 @@ export class RelatorioController{
                 url: req.originalUrl,
             });
 
-            //Validação do body da requisição precisa passar pelo menso um campo a ser atualizado
-            // if (!relatorio.numero_processo && !relatorio.cliente && !relatorio.cnpj && !relatorio.status && !relatorio.usuario_responsavel_id && !relatorio.usuarios_permitidos && !relatorio.formularios_selecionados) {
-            //     throw new AppError('Pelo menos um campo precisa ser atualizado', 400);
-            // }
-  
             // Validar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
-                    id: id
+                    id,
                 },  
             });
             
@@ -478,10 +474,9 @@ export class RelatorioController{
                 throw new AppError('Não é permitido cadastrar o mesmo formulário mais de uma vez', 400);
             }
            
-
             ///Atualiza o relatório
             const atualizarRelatorio = await prisma.relatorio.update({
-                where: { id: id },
+                where: { id },
                 data: {
                     numero_processo: relatorio.numero_processo,
                     cliente: relatorio.cliente,
@@ -497,91 +492,178 @@ export class RelatorioController{
                         update:{
                             numero_processo: relatorio.numero_processo,
                             form1_Cliente_Segurado: relatorio.formularios_selecionados?.includes('form1_Cliente_Segurado') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                    nome_cliente: relatorio.cliente,
-                                    cnpj: relatorio.cnpj,
+                                upsert: {
+                                    update: {
+                                        numero_processo: relatorio.numero_processo,
+                                        nome_cliente: relatorio.cliente,
+                                        cnpj: relatorio.cnpj,
+                                    },
+                                    create: {
+                                        numero_processo: relatorioExistente.numero_processo,
+                                        nome_cliente: relatorioExistente.cliente,
+                                        cnpj: relatorioExistente.cnpj,
+                                    },
                                 },
                             } : undefined,
                             form2_Caracteristica_Sinistro: relatorio.formularios_selecionados?.includes('form2_Caracteristica_Sinistro') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form3_Cronologia_Sinistro: relatorio.formularios_selecionados?.includes('form3_Cronologia_Sinistro') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form4_Do_Carregamento: relatorio.formularios_selecionados?.includes('form4_Do_Carregamento') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form5_Motorista: relatorio.formularios_selecionados?.includes('form5_Motorista') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form6_Ajudantes: relatorio.formularios_selecionados?.includes('form6_Ajudantes') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form7_Veiculo_Transportador: relatorio.formularios_selecionados?.includes('form7_Veiculo_Transportador') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form8_Orgao_Policial: relatorio.formularios_selecionados?.includes('form8_Orgao_Policial') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form9_Gerenciamento_Risco_Veiculo: relatorio.formularios_selecionados?.includes('form9_Gerenciamento_Risco_Veiculo') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form10_Sistemas_Protecao_Carregamento: relatorio.formularios_selecionados?.includes('form10_Sistemas_Protecao_Carregamento') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form11_Declaracao_Motorista_Ajudante: relatorio.formularios_selecionados?.includes('form11_Declaracao_Motorista_Ajudante') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form12_Gerenciamento_Risco_Deposito: relatorio.formularios_selecionados?.includes('form12_Gerenciamento_Risco_Deposito') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form13_Locais_Evento: relatorio.formularios_selecionados?.includes('form13_Locais_Evento') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form14_Resumo_Averiguacoes: relatorio.formularios_selecionados?.includes('form14_Resumo_Averiguacoes') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form15_Recuperacao_Carga: relatorio.formularios_selecionados?.includes('form15_Recuperacao_Carga') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form16_Anexos_Fotograficos: relatorio.formularios_selecionados?.includes('form16_Anexos_Fotograficos') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                             form17_Conclusao: relatorio.formularios_selecionados?.includes('form17_Conclusao') ? {
-                                create:{
-                                    numero_processo: relatorio.numero_processo,
-                                },
+                                upsert:{
+                                    update:{
+                                        numero_processo: relatorio.numero_processo,
+                                    },
+                                    create:{
+                                        numero_processo: relatorioExistente.numero_processo,
+                                    },
+                                }
                             } : undefined,
                         }, 
                     },
@@ -602,5 +684,6 @@ export class RelatorioController{
             return next(error);
         }
     }
+
 
 }
