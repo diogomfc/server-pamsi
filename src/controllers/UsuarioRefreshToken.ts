@@ -6,6 +6,7 @@ import { AppError } from '@/utils/AppError';
 import { TokenProvider } from '@/providers/TokenProvider';
 import { prisma } from '@/database';
 
+
 // Defina o esquema Zod para validar o corpo da solicitação
 const refreshTokenSchema = z.object({
     refreshToken: z.string(),
@@ -14,6 +15,8 @@ const refreshTokenSchema = z.object({
 export class UsuarioRefreshToken {
     //POST- Controller para criar um novo token de acesso usando um token de atualização
     async create(req: Request, res: Response, next: NextFunction) {
+     
+      
         try {
             // Validar o corpo da solicitação com o schema Zod
             const { refreshToken } = refreshTokenSchema.parse(req.body);

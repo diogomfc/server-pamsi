@@ -18,6 +18,13 @@ export class UsuarioAvatarController {
         const usuarioAutenticado = req.usuario;
       
         try {
+
+            logger.info({
+                message: `Tentativa de atualização do avatar do usuário ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}.`,
+                method: req.method,
+                url: req.originalUrl,
+            });
+
             if (!avatarFilename) {
                 return next(new AppError('Arquivo de avatar não fornecido.', 401));
             }
@@ -95,6 +102,13 @@ export class UsuarioAvatarController {
         const usuarioAutenticado = req.usuario;
       
         try {
+           
+            logger.info({
+                message: `Tentativa de exclusão do avatar do usuário ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}.`,
+                method: req.method,
+                url: req.originalUrl,
+            });
+
             const usuario = await prisma.usuario.findUnique({
                 where: {
                     id: usuarioAutenticado.id,
@@ -102,12 +116,6 @@ export class UsuarioAvatarController {
             });
 
             if (!usuario || !usuario.avatar) {
-                logger.error({
-                    message: `Não foi possível encontrar o usuário ou o usuário não possui um avatar. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}.`,
-                    method: req.method,
-                    url: req.originalUrl,
-                });
-            
                 return next(new AppError('O usuário não possui um avatar para excluir.', 404));
             }
             // Remover o avatar do armazenamento no disco

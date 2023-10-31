@@ -1,7 +1,7 @@
+
 import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import { compare, hash } from 'bcryptjs';
-import * as z from 'zod';
 
 import { FormatDate } from '@/utils/DateUtils';
 import { AppError } from '@/utils/AppError';
@@ -9,14 +9,9 @@ import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 
 import { LocalStorage } from '@/providers/LocalStorageProvider';
-import { FuncaoUsuario } from '@prisma/client';
+import { usuarioSchema } from '@/schemas/UsuarioSchema';
 
-const usuarioSchemaUpdate = z.object({
-    nome: z.string().optional(),
-    email: z.string().email().optional(),
-    senha_hash: z.string().optional(),
-    funcao: z.nativeEnum(FuncaoUsuario).optional(),
-});
+
 
 export class UsuarioController {
     //POST - Controlador para criar um novo usuário somente admin ou supervisor
@@ -30,17 +25,15 @@ export class UsuarioController {
         const usuarioAutenticado = req.usuario;
 
         try {
+
+            logger.info({
+                message: `Usuário ${usuarioAutenticado.nome} está tentando criar um novo usuário.`,
+                method: req.method,
+                url: req.originalUrl,
+            });
+            
             //const { nome, email, senha, funcao } = usuarioSchema.parse(req.body);
-            const { nome, email, senha, funcao } = req.body;
-
-            if (!nome || !email || !senha) {
-                throw new AppError('Informe todos os campos de texto (nome, email e senha).');
-            }
-
-            // Verifique se a função do usuário não é válida e gere um AppError
-            if (funcao !== 'Admin' && funcao !== 'Analista' && funcao !== 'Revisor' && funcao !== 'Supervisor') {
-                throw new AppError('Informe um perfil válido (Admin, Analista, Revisor ou Supervisor)', 401);
-            }
+            const { nome, email, senha, funcao } = usuarioSchema.create.parse(req.body);
 
             // Verifique se o e-mail já está em uso
             const verificaEmailUsuarioExiste = await prisma.usuario.findFirst({
@@ -159,11 +152,6 @@ export class UsuarioController {
                 criado_em: usuario.criado_em ? FormatDate(usuario.criado_em) : undefined,
             };
   
-            logger.info({
-                message: `Ação de visualização de perfil realizada. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}.`,
-                method: req.method,
-                url: req.originalUrl,
-            });
   
             res.json(usuarioFormatado);
         } catch (error) {
@@ -227,8 +215,7 @@ export class UsuarioController {
                 res.json(usuarioFormatado);
 
             } else {
-                // Se nenhum ID é fornecido, listamos todos os usuários (restringido por permissão)
-                //const { funcao } = req.usuario;
+                // Se nenhum ID é fornecido, listamos todos os usuários (restringido por permissão
   
                 if (usuarioAutenticado.funcao !== 'Admin' && usuarioAutenticado.funcao !== 'Supervisor') {
 
@@ -285,34 +272,17 @@ export class UsuarioController {
     async alterarSenha(req: Request, res: Response, next: NextFunction) {
         const usuarioAutenticado = req.usuario;
         try {
-            const { senhaAtual, novaSenha, confirmarSenha } = req.body;
-           
 
-            if (!senhaAtual || !novaSenha || !confirmarSenha) {
-                logger.error({
-                    message: 'Informe todos os campos (senha atual, nova senha e confirmar senha).',
-                    method: req.method,
-                    url: req.originalUrl,
-                });
-                return next(new AppError('Informe todos os campos (senha atual, nova senha e confirmar senha).'));
-            }
+            logger.info({
+                message: `Usuário ${usuarioAutenticado.nome} está tentando alterar a senha.`,
+                method: req.method,
+                url: req.originalUrl,
+            });
+        
+            const { senha_atual, nova_senha, confirmar_senha } = usuarioSchema.alterarSenha.parse(req.body);
 
-            if (novaSenha.length < 6) {
-                logger.error({
-                    message: 'A nova senha deve ter pelo menos 6 caracteres.',
-                    method: req.method,
-                    url: req.originalUrl,
-                });
-                return next(new AppError('A nova senha deve ter pelo menos 6 caracteres.'));
-            }
-
-            if (novaSenha !== confirmarSenha) {
-                logger.error({
-                    message: 'A nova senha e a confirmação de senha não correspondem.',
-                    method: req.method,
-                    url: req.originalUrl,
-                });
-                return next(new AppError('A nova senha e a confirmação de senha não correspondem.'));
+            if (nova_senha !== confirmar_senha) {
+                new AppError('A nova senha e a confirmação da senha não correspondem.', 400);
             }
 
             // Verifique se a senha atual corresponde à senha registrada no banco de dados
@@ -323,27 +293,17 @@ export class UsuarioController {
             });
 
             if (!usuario) {
-                logger.error({
-                    message: `Nenhum usuário com o ID fornecido (${usuarioAutenticado.id}) foi encontrado para alteração de senha.`,
-                    method: req.method,
-                    url: req.originalUrl,
-                });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
 
-            const senhaCorreta = await compare(senhaAtual, usuario.senha_hash);
+            const senhaCorreta = await compare(senha_atual, usuario.senha_hash);
 
             if (!senhaCorreta) {
-                logger.error({
-                    message: 'A senha atual está incorreta.',
-                    method: req.method,
-                    url: req.originalUrl,
-                });
-                return next(new AppError('A senha atual está incorreta.'));
+                new AppError('A senha atual está incorreta.');
             }
 
             // Prosseguir com a alteração da senha
-            const novaSenhaCriptografada = await hash(novaSenha, 8);
+            const novaSenhaCriptografada = await hash(nova_senha, 8);
 
             await prisma.usuario.update({
                 where: {
@@ -389,7 +349,7 @@ export class UsuarioController {
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
   
-            const dadosAtualizados = usuarioSchemaUpdate.parse(req.body);
+            const dadosAtualizados = usuarioSchema.update.parse(req.body);
 
             if (dadosAtualizados.funcao && (usuarioAutenticado.funcao !== 'Admin' && usuarioAutenticado.funcao !== 'Supervisor')) {
                 logger.error({

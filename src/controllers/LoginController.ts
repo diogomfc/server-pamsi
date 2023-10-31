@@ -10,20 +10,27 @@ import { TokenProvider } from '@/providers/TokenProvider';
 import { RefreshTokenProvider } from '@/providers/RefreshTokenProvider';
 
 // Defina o esquema Zod para validar o corpo da solicitação
-const loginSchema = z.object({
-    email: z.string().email(),
-    senha: z.string(),
+const LoginSchema = z.object({
+    email: z.string().email().min(1, { message: 'Favor informa o email do usuário.' }),
+    senha: z.string().min(1, { message: 'Favor informa a senha do usuário.' })
 });
 
+type LoginSchema = z.infer<typeof LoginSchema>;
+
 export class LoginController {
-    // Controller para autenticar um usuário e emitir tokens
+    //POST - /login -- Responsável por realizar a autenticação do usuário
     async create(req: Request, res: Response, next: NextFunction) {
+        const { email, senha } = LoginSchema.parse(req.body);
+        let usuario;
+
         try {
-            // Validar o corpo da solicitação com o schema Zod
-            const { email, senha } = loginSchema.parse(req.body);
 
-            let usuario;
-
+            logger.info({
+                message: `Tentativa de login realizada. Email: ${email}.`,
+                method: req.method,
+                url: req.originalUrl,
+            });
+            
             try {
                 // Encontrar o usuário com base no email fornecido
                 usuario = await prisma.usuario.findUnique({
@@ -56,7 +63,12 @@ export class LoginController {
 
                 // Remover a senha do usuário antes de enviar a resposta
                 const usuarioSemSenha = {
-                    ...usuario,
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    email: usuario.email,
+                    avatar: usuario.avatar,
+                    funcao: usuario.funcao,
+                    criado_em: FormatDate(usuario.criado_em),
                     senha_hash: undefined,
                 };
 
@@ -73,7 +85,7 @@ export class LoginController {
                     token,
                     refreshToken: {
                         id: refreshToken.id,
-                        criado_em: FormatDate(refreshToken.criado_em),
+                        gerado_em: FormatDate(refreshToken.criado_em),
                         expira_em: expira_em,
                     },
                 });
