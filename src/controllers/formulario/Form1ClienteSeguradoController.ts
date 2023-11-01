@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from 'express';
 
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
-import { FormatDate } from '@/utils/DateUtils';
 import { prisma } from '@/database';
 import { form1ClienteSeguradoSchema } from '@/schemas/FormsSchemas/Form1ClienteSeguradoSchema';
 import { Status_Formulario, Tipo_Formulario } from '@prisma/client';
+import { FormatDate } from '@/utils/DateUtils';
 
 export class Form1ClienteSeguradoController {
 
@@ -56,7 +56,6 @@ export class Form1ClienteSeguradoController {
                 data: {
                     numero_processo: relatorio.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    data_cadastro: FormatDate(new Date()),
                     nome_cliente: relatorio.cliente,
                     cnpj: relatorio.cnpj,
                     telefone: form1ClienteSegurado.telefone,
@@ -135,6 +134,11 @@ export class Form1ClienteSeguradoController {
                 throw new AppError('Form1ClienteSegurado não encontrado.', 404);
             }
 
+            const novaLista ={
+                ...form1ClienteSegurado,
+                data_cadastro: FormatDate(form1ClienteSegurado.data_cadastro),
+            };
+
             logger.info({
                 message: `Listagem form1_Cliente_Segurado realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
@@ -143,7 +147,7 @@ export class Form1ClienteSeguradoController {
 
             return res.status(200).json({
                 message: 'Listagem realizada com sucesso.',
-                form1ClienteSegurado: form1ClienteSegurado,
+                form1ClienteSegurado: novaLista,
             });
 
         } catch (error) {
@@ -201,12 +205,13 @@ export class Form1ClienteSeguradoController {
                         cidade: form1ClienteSegurado.cidade,
                         uf: form1ClienteSegurado.uf,
                         status: Status_Formulario.Formalizando,
-                        data_cadastro: FormatDate(new Date()),
                     }
                 });
 
                 return res.status(200).json(form1ClienteSeguradoAtualizado);
             }
+
+            //TODO: Tradamento de data_cadastro
 
             logger.info({
                 message: `Atualização form1_Cliente_Segurado realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,

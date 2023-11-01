@@ -6,7 +6,7 @@ import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 
 import { relatorioSchema } from '@/schemas/RelatorioSchema';
-import { Tipo_Formulario } from '@prisma/client';
+import { Tipo_Formulario,  } from '@prisma/client';
 
 
 export class RelatorioController{
@@ -60,6 +60,7 @@ export class RelatorioController{
                             form2_Caracteristica_Sinistro: relatorio.formularios_selecionados?.includes('form2_Caracteristica_Sinistro') ? {
                                 create:{
                                     numero_processo: relatorio.numero_processo,
+                                    natureza_sinistro: relatorio.natureza_sinistro,
                                 },
                             } : undefined,
                             form3_Cronologia_Sinistro: relatorio.formularios_selecionados?.includes('form3_Cronologia_Sinistro') ? {
@@ -191,9 +192,10 @@ export class RelatorioController{
             const relatorioCriado = {
                 id: criarRelatorio.id,
                 numero_processo: criarRelatorio.numero_processo,
+                natureza_sinistro: criarRelatorio.natureza_sinistro,
                 cliente: criarRelatorio.cliente,
                 cnpj: criarRelatorio.cnpj,
-                data_entrada: FormatDate(criarRelatorio.data_entrada),
+                data_entrada: FormatDate(new Date()),
                 status: criarRelatorio.status,
                 usuario_responsavel: usuarioResponsavel,
                 usuarios_permitidos: usuariosPermitidos?.usuarios_permitidos,
@@ -284,7 +286,7 @@ export class RelatorioController{
                             form15_Recuperacao_Carga: true,
                             form16_Anexos_Fotograficos: true,
                             form17_Conclusao: true, 
-                        }
+                        },
                     },
                 },
             });
@@ -338,6 +340,7 @@ export class RelatorioController{
                 return {
                     id: relatorio.id,
                     numero_processo: relatorio.numero_processo,
+                    natureza_sinistro: relatorio.natureza_sinistro,
                     status: relatorio.status,
                     cliente: relatorio.cliente,
                     cnpj: relatorio.cnpj,
@@ -346,11 +349,15 @@ export class RelatorioController{
                     usuario_responsavel: relatorio.usuario_responsavel,
                     usuarios_permitidos: relatorio.usuarios_permitidos,
                     formularios_selecionados: relatorio.formularios_selecionados,
-                    formularios: formularioFiltrado
+                    formularios: formularioFiltrado,
                 };
             });
 
-            const message: string = numero_processo ? 'Relatório filtrado com sucesso' : 'Relatórios listados com sucesso';
+            //Somar a quantidade de relatórios
+            const quantidadeRelatorios = todosRelatoriosExistente.length;
+
+
+            const message: string = numero_processo ? 'Relatório filtrado com sucesso' : `${quantidadeRelatorios} relatórios encontrados`;
             logger.info({
                 message: `${message}. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method, 
@@ -402,8 +409,6 @@ export class RelatorioController{
                     id: id,
                 },
                 include: {
-                    usuario_responsavel: true,
-                    usuarios_permitidos: true,
                     formularios: true,
                 },
             });
@@ -479,6 +484,7 @@ export class RelatorioController{
                 where: { id },
                 data: {
                     numero_processo: relatorio.numero_processo,
+                    natureza_sinistro: relatorio.natureza_sinistro,
                     cliente: relatorio.cliente,
                     cnpj: relatorio.cnpj,
                     usuario_responsavel_id: usuario_responsavel.id,
@@ -509,9 +515,11 @@ export class RelatorioController{
                                 upsert:{
                                     update:{
                                         numero_processo: relatorio.numero_processo,
+                                        natureza_sinistro: relatorio.natureza_sinistro,
                                     },
                                     create:{
                                         numero_processo: relatorioExistente.numero_processo,
+                                        natureza_sinistro: relatorioExistente.natureza_sinistro,
                                     },
                                 }
                             } : undefined,

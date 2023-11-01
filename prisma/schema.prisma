@@ -141,7 +141,7 @@ model Form1ClienteSegurado {
   id              String            @id @default(uuid())
   numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
-  data_cadastro   String?
+  data_cadastro   DateTime          @default(now())
   nome_cliente    String
   cnpj            String
   telefone        String?
@@ -164,13 +164,14 @@ model Form1ClienteSegurado {
 
 model Form2CaracteristicaSinistro {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("2")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
 
-  // Adicione os outros campos específicos deste formulário aqui
-  // Exemplo: campo1: TipoDoCampo1
-  // campo2: TipoDoCampo2
+  nome_seguradora   String?
+  natureza_sinistro Natureza_Sinistro
+  carga_embarcada   String?
+  valor_carga       String?
 
   formulario_associado      FormulariosDoRelatorio? @relation(fields: [formulariosDoRelatorio_id], references: [id], onDelete: Cascade)
   formulariosDoRelatorio_id String?                 @unique
