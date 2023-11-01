@@ -1,8 +1,8 @@
 import { Router } from 'express';
-//import { FuncaoUsuario as funcao } from '@prisma/client';
+import { FuncaoUsuario as funcao } from '@prisma/client';
 
 import { verificarAutenticacao } from '@/middlewares/VerificarAutenticacao';
-//import { permicaoParaAcesso } from '@/middlewares/PermicaoParaAcesso';
+import { permicaoParaAcesso } from '@/middlewares/PermicaoParaAcesso';
 
 import { Form1ClienteSeguradoController } from '@/controllers/formulario/Form1ClienteSeguradoController';
 
@@ -18,6 +18,13 @@ form1ClienteSeguradoRoutes.post(
     form1ClienteSeguradoController.create
 );
 
+//GET - /form1-cliente-segurado/:numero_processo
+form1ClienteSeguradoRoutes.get(
+    '/:numero_processo', 
+    verificarAutenticacao,
+    form1ClienteSeguradoController.show
+);
+
 //PUT - /form1-cliente-segurado/:numero_processo
 form1ClienteSeguradoRoutes.put(
     '/:numero_processo', 
@@ -29,12 +36,6 @@ form1ClienteSeguradoRoutes.put(
 form1ClienteSeguradoRoutes.delete(
     '/:numero_processo', 
     verificarAutenticacao,
+    permicaoParaAcesso([funcao.Supervisor, funcao.Admin]), 
     form1ClienteSeguradoController.delete
-);
-
-//POST - rr/form1-cliente-segurado/:numero_processo - Vincular a um relatório
-form1ClienteSeguradoRoutes.post(
-    '/rr/:numero_processo', 
-    verificarAutenticacao,
-    form1ClienteSeguradoController.createFormOnRelatorio
 );
