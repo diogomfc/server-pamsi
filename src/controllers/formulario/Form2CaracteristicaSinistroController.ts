@@ -13,7 +13,7 @@ export class Form2CaracteristicaSinistroController {
     // POST - /form2-caracteristica-sinistro/:numero_processo
     async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
-        const numero_processo = req.params.numero_processo;
+        const { numero_processo, relatorio_id } = req.params;
         const form2CaracteristicaSinistro = form2CaracteristicaSinistroSchema.create.parse(req.body);
 
         try {
@@ -26,7 +26,8 @@ export class Form2CaracteristicaSinistroController {
             // 1 - Verificar se o relatório existe
             const relatorio = await prisma.relatorio.findFirst({
                 where: {
-                    numero_processo: numero_processo,
+                    id: relatorio_id,
+                    numero_processo,
                 },
             });
 
@@ -37,7 +38,7 @@ export class Form2CaracteristicaSinistroController {
             // 2 - Verificar se o form2_Caracteristica_Sinistro já existe no relatório
             const form2CaracteristicaSinistroExistente = await prisma.form2CaracteristicaSinistro.findFirst({
                 where: {
-                    numero_processo: numero_processo,
+                    numero_processo,
                 },
             });
 
@@ -115,7 +116,7 @@ export class Form2CaracteristicaSinistroController {
     // GET - /form2-caracteristica-sinistro/:numero_processo
     async show(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
-        const numero_processo = req.params.numero_processo;
+        const { numero_processo, relatorio_id } = req.params;
 
         try {
             logger.info({
@@ -123,11 +124,23 @@ export class Form2CaracteristicaSinistroController {
                 method: req.method,
                 url: req.originalUrl,
             });
+             
+            // 1 - Verificar se o relatório existe
+            const relatorioExistente = await prisma.relatorio.findFirst({
+                where: {  
+                    id: relatorio_id,
+                    numero_processo
+                },
+            });
 
-            // 1 - Verificar se o form2_Caracteristica_Sinistro existe no relatório
+            if (!relatorioExistente) {
+                throw new AppError('Relatório não encontrado.', 404);
+            }
+
+            // 2 - Verificar se o form2_Caracteristica_Sinistro existe no relatório
             const form2CaracteristicaSinistro = await prisma.form2CaracteristicaSinistro.findFirst({
                 where: {
-                    numero_processo: numero_processo,
+                    numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
@@ -135,7 +148,7 @@ export class Form2CaracteristicaSinistroController {
                 throw new AppError('form2_Caracteristica_Sinistro não encontrado.', 404);
             }
 
-            // 2 - Retornar o form2_Caracteristica_Sinistro com a data formatada
+            // 3 - Retornar o form2_Caracteristica_Sinistro com a data formatada
             const novaLista = {
                 ...form2CaracteristicaSinistro,
                 data_cadastro: FormatDate(form2CaracteristicaSinistro.data_cadastro),
@@ -147,7 +160,7 @@ export class Form2CaracteristicaSinistroController {
                 url: req.originalUrl,
             });
              
-            // 3 - Retornar o form2_Caracteristica_Sinistro
+            // 4 - Retornar o form2_Caracteristica_Sinistro
             return res.status(200).json({
                 message: 'Listagem realizada com sucesso.',
                 form2CaracteristicaSinistro: novaLista,
@@ -167,7 +180,7 @@ export class Form2CaracteristicaSinistroController {
     // PUT - /form2-caracteristica-sinistro/:numero_processo
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
-        const numero_processo = req.params.numero_processo;
+        const { numero_processo, relatorio_id } = req.params;
         const form2CaracteristicaSinistro = form2CaracteristicaSinistroSchema.update.parse(req.body);
 
         try {
@@ -177,10 +190,23 @@ export class Form2CaracteristicaSinistroController {
                 url: req.originalUrl,
             });
 
-            // 1 - Verificar se o form2_Caracteristica_Sinistro existe no relatório
+            // 1 - Verificar se o relatório existe
+            const relatorioExistente = await prisma.relatorio.findFirst({
+                where: {  
+                    id: relatorio_id,
+                    numero_processo
+                },
+            });
+
+            if (!relatorioExistente) {
+                throw new AppError('Relatório não encontrado.', 404);
+            }
+
+
+            // 2 - Verificar se o form2_Caracteristica_Sinistro existe no relatório
             const form2CaracteristicaSinistroExistente = await prisma.form2CaracteristicaSinistro.findFirst({
                 where: {
-                    numero_processo: numero_processo
+                    numero_processo: relatorioExistente.numero_processo
                 }
             });
 
@@ -188,11 +214,11 @@ export class Form2CaracteristicaSinistroController {
                 throw new AppError('form2_Caracteristica_Sinistro não encontrado.', 404);
             }
 
-            // 2 - Atualizar o registro de form2_Caracteristica_Sinistro na tabela form1ClienteSegurado
+            // 3 - Atualizar o registro de form2_Caracteristica_Sinistro na tabela form1ClienteSegurado
             if (form2CaracteristicaSinistroExistente) {
                 const form2CaracteristicaSinistroAtualizado = await prisma.form2CaracteristicaSinistro.update({
                     where: {
-                        numero_processo: numero_processo
+                        numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
                         nome_seguradora: form2CaracteristicaSinistro.nome_seguradora,
@@ -211,9 +237,6 @@ export class Form2CaracteristicaSinistroController {
               
                 return res.status(200).json(novaLista);
             }
-
-            
-
 
             logger.info({
                 message: `Atualização form2_Caracteristica_Sinistro realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
@@ -235,7 +258,7 @@ export class Form2CaracteristicaSinistroController {
     // DELETE - /form2-caracteristica-sinistro/:numero_processo
     async delete(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
-        const numero_processo = req.params.numero_processo;
+        const { numero_processo, relatorio_id } = req.params;
 
         try {
             logger.info({
@@ -244,33 +267,46 @@ export class Form2CaracteristicaSinistroController {
                 url: req.originalUrl,
             });
 
-            // 1. Verificar se o "form2-Caracteristica-Sinistro" existe no relatório
-            const relatorio = await prisma.relatorio.findFirst({
-                where: {
-                    numero_processo: numero_processo,
+            // 1 - Verificar se o relatório existe
+            const relatorioExistente = await prisma.relatorio.findFirst({
+                where: {  
+                    id: relatorio_id,
+                    numero_processo
                 },
             });
 
-            if (!relatorio) {
+            if (!relatorioExistente) {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2. Excluir o registro de form2-caracteristica-sinistro na tabela form2CaracteristicaSinistro
-            await prisma.form2CaracteristicaSinistro.delete({
+
+            // 2. Verificar se o "form2-Caracteristica-Sinistro" existe no relatório
+            const form2CaracteristicaSinistroExistente = await prisma.form2CaracteristicaSinistro.findFirst({
                 where: {
-                    numero_processo: numero_processo,
+                    numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            // 3. Atualizar o campo "formularios_selecionados" do relatório (removendo form2_Caracteristica_Sinistro)
-            if (relatorio.formularios_selecionados.includes('form2_Caracteristica_Sinistro')) {
-                const updatedFormulariosSelecionados = relatorio.formularios_selecionados.filter(
+            if (!form2CaracteristicaSinistroExistente) {
+                throw new AppError('form2_Caracteristica_Sinistro não encontrado.', 404);
+            }
+
+            // 3. Excluir o registro de form2-caracteristica-sinistro na tabela form2CaracteristicaSinistro
+            await prisma.form2CaracteristicaSinistro.delete({
+                where: {
+                    numero_processo,
+                },
+            });
+
+            // 4. Atualizar o campo "formularios_selecionados" do relatório (removendo form2_Caracteristica_Sinistro)
+            if (relatorioExistente.formularios_selecionados.includes('form2_Caracteristica_Sinistro')) {
+                const updatedFormulariosSelecionados = relatorioExistente.formularios_selecionados.filter(
                     (formulario) => formulario !== 'form2_Caracteristica_Sinistro'
                 );
 
                 await prisma.relatorio.update({
                     where: {
-                        numero_processo: numero_processo,
+                        numero_processo,
                     },
                     data: {
                         formularios_selecionados: updatedFormulariosSelecionados,
@@ -283,7 +319,8 @@ export class Form2CaracteristicaSinistroController {
                 method: req.method,
                 url: req.originalUrl,
             });
-
+            
+            // 5. Retornar mensagem de sucesso
             return res.status(200).json({
                 message: 'Exclusão realizada com sucesso.',
             });

@@ -8,7 +8,7 @@ declare namespace Express {
       funcao: 'Admin' | 'Analista' | 'Supervisor' | 'Revisor';
     };
     relatorio:{
-      id: string;
+      relatorio_id: string;
       numero_processo: string;
     }
   }

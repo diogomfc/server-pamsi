@@ -10,30 +10,30 @@ const form2CaracteristicaSinistroController = new Form2CaracteristicaSinistroCon
 
 export const form2CaracteristicaSinistroRoutes = Router();
 
-// POST - /form2-caracteristica-sinistro/:numero_processo
+// POST - /form2-caracteristica-sinistro/:numero_processo/:relatorio_id
 form2CaracteristicaSinistroRoutes.post(
-    '/:numero_processo',
+    '/:numero_processo/:relatorio_id',
     verificarAutenticacao,
     form2CaracteristicaSinistroController.create
 );
 
-// GET - /form2-caracteristica-sinistro/:numero_processo
+// GET - /form2-caracteristica-sinistro/:numero_processo/:relatorio_id
 form2CaracteristicaSinistroRoutes.get(
-    '/:numero_processo',
+    '/:numero_processo/:relatorio_id',
     verificarAutenticacao,
     form2CaracteristicaSinistroController.show
 );
 
-// PUT - /form2-caracteristica-sinistro/:numero_processo
+// PUT - /form2-caracteristica-sinistro/:numero_processo/:relatorio_id
 form2CaracteristicaSinistroRoutes.put(
-    '/:numero_processo',
+    '/:numero_processo/:relatorio_id',
     verificarAutenticacao,
     form2CaracteristicaSinistroController.update
 );
 
-// DELETE - /form2-caracteristica-sinistro/:numero_processo
+// DELETE - /form2-caracteristica-sinistro/:numero_processo/:relatorio_id
 form2CaracteristicaSinistroRoutes.delete(
-    '/:numero_processo',
+    '/:numero_processo/:relatorio_id',
     verificarAutenticacao,
     permicaoParaAcesso([funcao.Supervisor, funcao.Admin]),
     form2CaracteristicaSinistroController.delete

@@ -11,30 +11,30 @@ const form1ClienteSeguradoController = new Form1ClienteSeguradoController();
 export const form1ClienteSeguradoRoutes = Router();
 
 
-//POST - /form1-cliente-segurado/:numero_processo
+//POST - /form1-cliente-segurado/:numero_processo/:relatorio_id
 form1ClienteSeguradoRoutes.post(
-    '/:numero_processo', 
+    '/:numero_processo/:relatorio_id', 
     verificarAutenticacao,
     form1ClienteSeguradoController.create
 );
 
-//GET - /form1-cliente-segurado/:numero_processo
+//GET - /form1-cliente-segurado/:numero_processo/:relatorio_id
 form1ClienteSeguradoRoutes.get(
-    '/:numero_processo', 
+    '/:numero_processo/:relatorio_id', 
     verificarAutenticacao,
     form1ClienteSeguradoController.show
 );
 
-//PUT - /form1-cliente-segurado/:numero_processo
+//PUT - /form1-cliente-segurado/:numero_processo/:relatorio_id
 form1ClienteSeguradoRoutes.put(
-    '/:numero_processo', 
+    '/:numero_processo/:relatorio_id', 
     verificarAutenticacao,
     form1ClienteSeguradoController.update
 );
 
-//DELETE - /form1-cliente-segurado/:numero_processo
+//DELETE - /form1-cliente-segurado/:numero_processo/:relatorio_id
 form1ClienteSeguradoRoutes.delete(
-    '/:numero_processo', 
+    '/:numero_processo/:relatorio_id', 
     verificarAutenticacao,
     permicaoParaAcesso([funcao.Supervisor, funcao.Admin]), 
     form1ClienteSeguradoController.delete

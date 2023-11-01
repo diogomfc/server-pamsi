@@ -181,9 +181,22 @@ model Form2CaracteristicaSinistro {
 
 model Form3CronologiaSinistro {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("3")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  cep_local_sinistro         String?
+  endereco_local_sinistro    String?
+  numero_local_sinistro      String?
+  complemento_local_sinistro String?
+  bairro_local_sinistro      String?
+  cidade_local_sinistro      String?
+  uf_local_sinistro          String?
+  comunicante                String?
+  data_hora_sinistro         String?
+  data_hora_comunicacao      String?
+  agente_pamcary             String?
+  data_hora_chegada_local    String?
 
   formulario_associado      FormulariosDoRelatorio? @relation(fields: [formulariosDoRelatorio_id], references: [id], onDelete: Cascade)
   formulariosDoRelatorio_id String?                 @unique
