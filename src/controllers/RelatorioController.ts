@@ -225,15 +225,15 @@ export class RelatorioController{
             return next(error);
         }
     }
-    //GET - /relatorio/:numero_processo? -- Responsável por listar um relatório por numero_processo ou todos os relatórios
+    //GET - /relatorio/:numero_processo?/:relatorio_id? -- Responsável por listar um relatório por numero_processo ou relatorio_id ou todos os relatórios quando não informado nenhum parâmetro
     async index(req: Request, res: Response, next: NextFunction) {
       
         const usuario_responsavel = req.usuario;
-        const {numero_processo} = req.params;
+        const { relatorio_id } = req.params;
 
         try {       
             logger.info({
-                message: `Iniciando ação de busca de relatórios. Número do Processo: ${numero_processo}, Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Iniciando ação de busca de relatórios. relatorio_id: ${relatorio_id}, Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method, 
                 url: req.originalUrl
             });
@@ -241,7 +241,7 @@ export class RelatorioController{
             // 1 - Selecionar todos os relatórios
             const todosRelatoriosExistente = await prisma.relatorio.findMany({
                 where: {
-                    numero_processo: numero_processo ? numero_processo as string : undefined,
+                    id: relatorio_id,
                 },
                 orderBy: {
                     data_emissao: 'desc',
@@ -292,8 +292,8 @@ export class RelatorioController{
 
             if (todosRelatoriosExistente.length === 0) {
                 let message: string = 'Não existe relatório cadastrado';
-                if (numero_processo) {
-                    message = `Não existe relatório cadastrado com o número do processo ${numero_processo}`;
+                if (relatorio_id) {
+                    message = `Não existe relatório cadastrado com o esse ID: ${relatorio_id}`;
                 }
 
                 logger.info({
@@ -355,7 +355,7 @@ export class RelatorioController{
             const quantidadeRelatorios = todosRelatoriosExistente.length;
 
 
-            const message: string = numero_processo ? 'Relatório filtrado com sucesso' : `${quantidadeRelatorios} relatórios encontrados`;
+            const message: string = relatorio_id ? 'Relatório filtrado com sucesso' : `${quantidadeRelatorios} relatórios encontrados`;
             logger.info({
                 message: `${message}. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method, 
@@ -381,7 +381,7 @@ export class RelatorioController{
     //PUT - /relatorio/:id -- Responsável por atualizar relatórios ORIGINAL
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
-        const { id } = req.params;
+        const { relatorio_id } = req.params;
        
         const relatorio = relatorioSchema.update.parse(req.body);
   
@@ -395,7 +395,7 @@ export class RelatorioController{
             // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
-                    id,
+                    id: relatorio_id
                 },  
             });
             
@@ -431,7 +431,7 @@ export class RelatorioController{
            
             // 6 - Atualiza o relatório com os novos dados
             const atualizarRelatorio = await prisma.relatorio.update({
-                where: { id },
+                where: { id: relatorioExistente.id },
                 data: {
                     numero_processo: relatorio.numero_processo,
                     natureza_sinistro: relatorio.natureza_sinistro,
@@ -645,11 +645,11 @@ export class RelatorioController{
 
     //DELETE - /relatorio/:id -- Responsável por deletar relatórios
     async delete(req: Request, res: Response, next: NextFunction) {
-        const { id } = req.params;
+        const { relatorio_id } = req.params;
         const usuario_responsavel = req.usuario;
         try {
             logger.info({
-                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} iniciando a ação de deletar o relatório com ID: ${id}`,
+                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} iniciando a ação de deletar o relatório com ID: ${relatorio_id}`,
                 method: req.method, 
                 url: req.originalUrl
             });
@@ -657,7 +657,7 @@ export class RelatorioController{
             // 1 - Verificar se o relatório a ser excluído existe
             const relatorioDeletado = await prisma.relatorio.findUnique({
                 where: {
-                    id: id,
+                    id: relatorio_id,
                 },
             });
 
@@ -668,7 +668,7 @@ export class RelatorioController{
             // 2 - Excluir o relatório
             const relatorioExcluido = await prisma.relatorio.delete({
                 where: {
-                    id: id,
+                    id: relatorioDeletado.id,
                 },
                 include: {
                     formularios: true,
@@ -682,7 +682,7 @@ export class RelatorioController{
             });
         } catch (error) {
             logger.error({
-                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} encontrou um erro ao deletar o relatório com ID: ${id}. Erro: ${JSON.stringify(error)}`, 
+                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} encontrou um erro ao deletar o relatório com ID: ${relatorio_id}. Erro: ${JSON.stringify(error)}`, 
                 method: req.method, 
                 url: req.originalUrl
             });

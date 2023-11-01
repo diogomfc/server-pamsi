@@ -20,14 +20,14 @@ relatorioRouter.post(
 
 //GET - /relatorio/:numero_processo? -- Responsável por listar um relatório por numero_processo ou todos os relatórios
 relatorioRouter.get(
-    '/:numero_processo?', 
+    '/:relatorio_id?', 
     verificarAutenticacao, 
     relatorioController.index
 );
 
 //DELETE - /relatorio/:id -- Responsável por deletar relatórios
 relatorioRouter.delete(
-    '/:id', 
+    '/:relatorio_id', 
     verificarAutenticacao,
     permicaoParaAcesso([funcao.Supervisor, funcao.Admin]), 
     relatorioController.delete
@@ -35,7 +35,7 @@ relatorioRouter.delete(
 
 //PUT - /relatorio/:id -- Responsável por atualizar relatórios
 relatorioRouter.put(
-    '/:id', 
+    '/:relatorio_id', 
     verificarAutenticacao,
     relatorioController.update
 );
