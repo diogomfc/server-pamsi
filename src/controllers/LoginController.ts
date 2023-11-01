@@ -18,13 +18,12 @@ const LoginSchema = z.object({
 type LoginSchema = z.infer<typeof LoginSchema>;
 
 export class LoginController {
-    //POST - /login -- Responsável por realizar a autenticação do usuário
+    //POST - /login/
     async create(req: Request, res: Response, next: NextFunction) {
         const { email, senha } = LoginSchema.parse(req.body);
         let usuario;
 
         try {
-
             logger.info({
                 message: `Tentativa de login realizada. Email: ${email}.`,
                 method: req.method,
@@ -32,36 +31,34 @@ export class LoginController {
             });
             
             try {
-                // Encontrar o usuário com base no email fornecido
+                // 1 - Verificar se o login é válido
                 usuario = await prisma.usuario.findUnique({
                     where: {
                         email,
                     },
                 });
 
-                // Verificar se o usuário existe
                 if (!usuario) {
                     throw new AppError('Email ou senha incorretos.', 401);
                 }
 
-                // Comparar a senha fornecida com a senha do usuário
+                // 2 - Verificar se a senha está correta
                 const senhaCorreta = await compare(senha, usuario.senha_hash);
 
-                // Verificar a autenticidade da senha
                 if (!senhaCorreta) {
                     throw new AppError('Email ou senha incorretos.', 401);
                 }
 
-                // Gerar um novo token de acesso
+                // 3 - Gerar um novo token de acesso
                 const tokenProvider = new TokenProvider();
                 const token = await tokenProvider.execute(usuario.id, usuario.nome, usuario.funcao);
 
-                // Gerar um novo token de atualização
+                // 4 - Gerar um novo token de atualização
                 const refreshTokenProvider = new RefreshTokenProvider();
                 const refreshToken = await refreshTokenProvider.execute(usuario.id);
                 const expira_em = FormatDate(new Date(refreshToken.expira_em * 1000));
 
-                // Remover a senha do usuário antes de enviar a resposta
+                // 5 - Retorna os dados do usuário sem a senha
                 const usuarioSemSenha = {
                     id: usuario.id,
                     nome: usuario.nome,
@@ -72,15 +69,15 @@ export class LoginController {
                     senha_hash: undefined,
                 };
 
-                // Registrar a ação de login no log
                 logger.info({
                     message: `Ação de login realizada. Usuário: ${usuario.nome} - ID: ${usuario.id}.`,
                     method: req.method,
                     url: req.originalUrl,
                 });
 
-                // Enviar a resposta com os tokens e os detalhes do usuário
-                return res.json({
+                // 6 - Retorna os dados do usuário e os tokens
+                return res.status(201).json({
+                    message: 'Login realizado com sucesso.',
                     usuario: usuarioSemSenha,
                     token,
                     refreshToken: {
@@ -89,8 +86,9 @@ export class LoginController {
                         expira_em: expira_em,
                     },
                 });
+
             } catch (error) {
-                // Lidar com erros durante o processo de autenticação
+             
                 if (usuario) {
                     logger.error({
                         message: `Erro ao realizar login. Usuário: ${usuario.nome} - ID: ${usuario.id}. Motivo: ${JSON.stringify(error)}.`,

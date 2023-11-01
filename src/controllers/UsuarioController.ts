@@ -1,4 +1,3 @@
-
 import { NextFunction, Request, Response } from 'express';
 import path from 'path';
 import { compare, hash } from 'bcryptjs';
@@ -12,30 +11,25 @@ import { LocalStorage } from '@/providers/LocalStorageProvider';
 import { usuarioSchema } from '@/schemas/UsuarioSchema';
 
 
-
 export class UsuarioController {
-    //POST - Controlador para criar um novo usuário somente admin ou supervisor
+    //POST - /usuarios
     async create(req: Request, res: Response, next: NextFunction) {
         
         const avatarPath = req.file?.path as string;
         const avatarFilename = req.file?.filename as string;
         const armazenamentoDisco = new LocalStorage();
-
-        //buscar o usuário autenticado
         const usuarioAutenticado = req.usuario;
 
         try {
-
             logger.info({
                 message: `Usuário ${usuarioAutenticado.nome} está tentando criar um novo usuário.`,
                 method: req.method,
                 url: req.originalUrl,
             });
             
-            //const { nome, email, senha, funcao } = usuarioSchema.parse(req.body);
             const { nome, email, senha, funcao } = usuarioSchema.create.parse(req.body);
 
-            // Verifique se o e-mail já está em uso
+            // 1 - Verifique se o usuário já existe
             const verificaEmailUsuarioExiste = await prisma.usuario.findFirst({
                 where: {
                     email,
@@ -46,19 +40,21 @@ export class UsuarioController {
                 throw new AppError('Este e-mail já está em uso.', 401);
             }
 
-            // Criptografe a senha
+            // 2 - Criptografe a senha
             const senhaCriptografada = await hash(senha, 8);
 
-            // Salve o arquivo de avatar no disco
+            // 3 - Salve o arquivo de avatar no disco local
             if(avatarFilename){
                 const arquivoAvatarPath = await armazenamentoDisco.saveFile(avatarFilename);
+
                 logger.info({
                     message: `Arquivo de avatar salvo com sucesso: ${arquivoAvatarPath}`,
                     method: req.method,
                     url: req.originalUrl,
                 });
             }
-
+            
+            // 4 - Crie o usuário no banco de dados com a senha criptografada e o caminho do avatar
             const usuarioCriado = await prisma.usuario.create({
                 data: {
                     nome,
@@ -76,7 +72,8 @@ export class UsuarioController {
                     criado_em: true,
                 },
             });
-
+             
+            // 5 - Formate a resposta do usuário
             const usuario = {
                 id: usuarioCriado.id,
                 nome: usuarioCriado.nome,
@@ -86,9 +83,14 @@ export class UsuarioController {
                 criado_em: FormatDate(usuarioCriado.criado_em),
             };
 
+            // 6 - Salve o usuário na requisição para uso posterior
             req.usuario = usuario;
             
-            res.status(201).json({ message: 'Usuário criado com sucesso', usuario });
+            // 7 - Retorne a resposta
+            res.status(201).json({ 
+                message: 'Usuário criado com sucesso', 
+                usuario 
+            });
 
             logger.info({
                 message: `Usuário criado com sucesso. Detalhes: ID - ${usuarioCriado.id}, Nome - ${usuarioCriado.nome}. Criado por: Nome - ${usuarioAutenticado.nome}, Função - ${usuarioAutenticado.funcao}.`,
@@ -97,7 +99,7 @@ export class UsuarioController {
             });
 
         } catch (error) {
-            //Se o arquivo de avatar foi salvo com sucesso e ocorreu um erro, exclua o arquivo de avatar
+            // 8 - Se o arquivo de avatar foi salvo com sucesso e ocorreu um erro, exclua o arquivo de avatar
             if (avatarFilename) {
                 await armazenamentoDisco.deleteFile(avatarPath);
             }
@@ -114,12 +116,13 @@ export class UsuarioController {
         }
     }
 
-    //GET - Controller para carregar o perfil do usuário
+    //GET - /usuarios/perfil
     async perfil(req: Request, res: Response, next: NextFunction) {
-        
         const usuarioAutenticado = req.usuario;
       
         try {
+
+            //1 - Verifique se o usuário existe
             const usuario = await prisma.usuario.findUnique({
                 where: {
                     id: usuarioAutenticado.id
@@ -142,7 +145,8 @@ export class UsuarioController {
                 });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
-  
+
+            //2 - Formate a resposta do usuário carregando os dados para o perfil
             const usuarioFormatado = {
                 id: usuario.id,
                 nome: usuario.nome,
@@ -152,8 +156,9 @@ export class UsuarioController {
                 criado_em: usuario.criado_em ? FormatDate(usuario.criado_em) : undefined,
             };
   
-  
+            //3 - Retorne a resposta
             res.json(usuarioFormatado);
+
         } catch (error) {
             logger.error({
                 message: `Ocorreu um erro ao tentar visualizar o perfil. Usuário: ${usuarioAutenticado.nome} - ID: ${usuarioAutenticado.id}. Detalhes do erro: ${JSON.stringify(error)}.`,
@@ -164,16 +169,16 @@ export class UsuarioController {
         }
     }
   
-    //GET - Controller para listar um usuário (por ID) ou todos os usuários
+    //GET - /usuarios:id?
     async index(req: Request, res: Response, next: NextFunction) {
-     
         const usuarioAutenticado = req.usuario;
       
         try {
             const { id } = req.params;
-  
+            // 1 - Se um ID é fornecido, retorne o usuário com esse ID
             if (id) {
-                // Se o ID é fornecido, listamos um único usuário
+
+                // 1.1 - Verifique se o usuário existe
                 const usuario = await prisma.usuario.findUnique({
                     where: {
                         id
@@ -196,7 +201,7 @@ export class UsuarioController {
                     });
                     return next(new AppError('O usuário não foi encontrado.', 404));
                 }
-  
+                // 1.2 - Formate a resposta do usuário carregando os dados para o perfil
                 const usuarioFormatado = {
                     id: usuario.id,
                     nome: usuario.nome,
@@ -211,12 +216,15 @@ export class UsuarioController {
                     method: req.method,
                     url: req.originalUrl,
                 });
-  
+                
+                // 1.3 - Retorne a resposta
                 res.json(usuarioFormatado);
 
+
+            // 2 - Se nenhum ID for fornecido, retorne todos os usuários (somente Admin e Supervisor)
             } else {
-                // Se nenhum ID é fornecido, listamos todos os usuários (restringido por permissão
-  
+
+                // 2.1 - Verifique se o usuário tem permissão para listar todos os usuários
                 if (usuarioAutenticado.funcao !== 'Admin' && usuarioAutenticado.funcao !== 'Supervisor') {
 
                     logger.error({
@@ -227,7 +235,7 @@ export class UsuarioController {
 
                     return next(new AppError('Somente um Admin ou Supervisor podem listar todos os usuários.', 401));
                 }
-  
+                // 2.2 - buscar todos os usuários
                 const usuarios = await prisma.usuario.findMany({
                     select: {
                         id: true,
@@ -239,6 +247,7 @@ export class UsuarioController {
                     }
                 });
 
+                //2.3 - Formate a resposta do usuário carregando os dados para o perfil
                 const usuariosFormatados = usuarios.map((usuario) => {
                     return {
                         id: usuario.id,
@@ -255,9 +264,11 @@ export class UsuarioController {
                     method: req.method,
                     url: req.originalUrl,
                 });
-  
+                
+                //2.4 - Retorne a resposta
                 return res.json(usuariosFormatados);
             }
+
         } catch (error) {
             logger.error({
                 message: `Ocorreu um erro ao tentar listar os usuários por ${usuarioAutenticado.nome}. Detalhes do erro: ${JSON.stringify(error)}.`,
@@ -268,9 +279,11 @@ export class UsuarioController {
         }
     }
     
-    //PUT- Controller para atualizar a senha - OK
+    //PUT- /usuarios/alterar-senha
     async alterarSenha(req: Request, res: Response, next: NextFunction) {
         const usuarioAutenticado = req.usuario;
+        const { senha_atual, nova_senha, confirmar_senha } = usuarioSchema.alterarSenha.parse(req.body);
+
         try {
 
             logger.info({
@@ -279,32 +292,38 @@ export class UsuarioController {
                 url: req.originalUrl,
             });
         
-            const { senha_atual, nova_senha, confirmar_senha } = usuarioSchema.alterarSenha.parse(req.body);
-
-            if (nova_senha !== confirmar_senha) {
-                new AppError('A nova senha e a confirmação da senha não correspondem.', 400);
-            }
-
-            // Verifique se a senha atual corresponde à senha registrada no banco de dados
-            const usuario = await prisma.usuario.findUnique({
+            //1 - Verifique se o usuário existe
+            const usuarioExiste = await prisma.usuario.findUnique({
                 where: {
                     id: usuarioAutenticado.id
                 },
             });
 
-            if (!usuario) {
+            if (!usuarioExiste) {
+                logger.error({
+                    message: `O usuário ID: ${usuarioAutenticado.id} não foi encontrado.`,
+                    method: req.method,
+                    url: req.originalUrl,
+                });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
 
-            const senhaCorreta = await compare(senha_atual, usuario.senha_hash);
+            // 2 - Verifique se a nova senha e a confirmação da senha correspondem
+            if (nova_senha !== confirmar_senha) {
+                new AppError('A nova senha e a confirmação da senha não correspondem.', 400);
+            }
+
+            // 3 - Comparar a senha atual com a senha criptografada
+            const senhaCorreta = await compare(senha_atual, usuarioExiste.senha_hash);
 
             if (!senhaCorreta) {
                 new AppError('A senha atual está incorreta.');
             }
 
-            // Prosseguir com a alteração da senha
+            // 4 - Criptografe a nova senha
             const novaSenhaCriptografada = await hash(nova_senha, 8);
 
+            // 5 - Atualize a senha do usuário
             await prisma.usuario.update({
                 where: {
                     id: usuarioAutenticado.id
@@ -319,7 +338,8 @@ export class UsuarioController {
                 method: req.method,
                 url: req.originalUrl,
             });
-
+            
+            // 6 - Retorne a resposta
             res.status(201).json({
                 message: 'Senha alterada com sucesso.',
             });
@@ -334,12 +354,14 @@ export class UsuarioController {
         }
     }
 
-    //PUT- Controller para editar o perfil do usuário - OK
+    //PUT- /usuarios/editar-perfil
     async editarPerfil(req: Request, res: Response, next: NextFunction) {
       
         const usuarioAutenticado = req.usuario;
+        const dadosAtualizados = usuarioSchema.update.parse(req.body);
       
         try {
+            // 1 - Verifique se o usuário existe e está autenticado
             if (!usuarioAutenticado) {
                 logger.error({
                     message: 'O usuário não foi encontrado.',
@@ -348,9 +370,9 @@ export class UsuarioController {
                 });
                 return next(new AppError('O usuário não foi encontrado.', 404));
             }
-  
-            const dadosAtualizados = usuarioSchema.update.parse(req.body);
 
+
+            // 2 - Verifique se o usuário tem permissão para alterar a função (somente Admin e Supervisor)
             if (dadosAtualizados.funcao && (usuarioAutenticado.funcao !== 'Admin' && usuarioAutenticado.funcao !== 'Supervisor')) {
                 logger.error({
                     message: 'O usuário não tem permissão para alterar a função.',
@@ -359,7 +381,8 @@ export class UsuarioController {
                 });
                 return next(new AppError('Você não tem permissão para alterar a função.', 403));
             }
-
+           
+            // 3 -  Atualize o perfil do usuário
             const usuarioAtualizado = await prisma.usuario.update({
                 where: {
                     id: usuarioAutenticado.id
@@ -377,13 +400,15 @@ export class UsuarioController {
                 method: req.method,
                 url: req.originalUrl,
             });
-
-            res.json({
-                'message': 'Perfil atualizado com sucesso.',
+            
+            // 4 - Retorne a resposta
+            res.status(201).json({
+                message: 'Perfil editado com sucesso.',
                 ...usuarioAtualizado,
                 senha_hash: undefined,
                 criado_em: usuarioAtualizado.criado_em ? FormatDate(usuarioAtualizado.criado_em) : undefined,
             });
+
         } catch (error) {
             logger.error({
                 message:`Erro ao editar perfil do usuário por ${usuarioAutenticado.nome} ${JSON.stringify(error)}`,

@@ -8,5 +8,8 @@ const usuarioRefreshToken = new UsuarioRefreshToken();
 
 export const loginRoutes = Router();
 
+//POST - /login/
 loginRoutes.post('/', loginController.create);
+
+//POST - /login/atualizar-token
 loginRoutes.post('/atualizar-token', usuarioRefreshToken.create);

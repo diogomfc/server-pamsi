@@ -70,7 +70,7 @@ export class Form2CaracteristicaSinistroController {
                 data_cadastro: FormatDate(newForm2CaracteristicaSinistro.data_cadastro),
             };
 
-            // 5. Atualizar o campo "formularios_selecionados" do relatório (adicionando form2_Caracteristica_Sinistro)
+            // 5 - Atualizar o campo "formularios_selecionados" do relatório (adicionando form2_Caracteristica_Sinistro)
             if (!relatorio.formularios_selecionados?.includes('form2_Caracteristica_Sinistro')) {
                 const updatedFormulariosSelecionados = [
                     ...relatorio.formularios_selecionados ?? [],
@@ -92,6 +92,8 @@ export class Form2CaracteristicaSinistroController {
                 method: req.method,
                 url: req.originalUrl,
             });
+
+            // 6 - Retornar o form2CaracteristicaSinistro criado
 
             return res.status(201).json({
                 message: 'Cadastro realizado com sucesso.',
@@ -122,6 +124,7 @@ export class Form2CaracteristicaSinistroController {
                 url: req.originalUrl,
             });
 
+            // 1 - Verificar se o form2_Caracteristica_Sinistro existe no relatório
             const form2CaracteristicaSinistro = await prisma.form2CaracteristicaSinistro.findFirst({
                 where: {
                     numero_processo: numero_processo,
@@ -132,19 +135,19 @@ export class Form2CaracteristicaSinistroController {
                 throw new AppError('form2_Caracteristica_Sinistro não encontrado.', 404);
             }
 
+            // 2 - Retornar o form2_Caracteristica_Sinistro com a data formatada
             const novaLista = {
                 ...form2CaracteristicaSinistro,
                 data_cadastro: FormatDate(form2CaracteristicaSinistro.data_cadastro),
             };
-
-         
 
             logger.info({
                 message: `Listagem form2_Caracteristica_Sinistro realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
-
+             
+            // 3 - Retornar o form2_Caracteristica_Sinistro
             return res.status(200).json({
                 message: 'Listagem realizada com sucesso.',
                 form2CaracteristicaSinistro: novaLista,
@@ -174,19 +177,18 @@ export class Form2CaracteristicaSinistroController {
                 url: req.originalUrl,
             });
 
-            // Localizar o form2CaracteristicaSinistro no banco de dados pelo numero_processo vinculado ao relatório
+            // 1 - Verificar se o form2_Caracteristica_Sinistro existe no relatório
             const form2CaracteristicaSinistroExistente = await prisma.form2CaracteristicaSinistro.findFirst({
                 where: {
                     numero_processo: numero_processo
                 }
             });
 
-            // Se não existir
             if (!form2CaracteristicaSinistroExistente) {
                 throw new AppError('form2_Caracteristica_Sinistro não encontrado.', 404);
             }
 
-            // Se existir, atualiza
+            // 2 - Atualizar o registro de form2_Caracteristica_Sinistro na tabela form1ClienteSegurado
             if (form2CaracteristicaSinistroExistente) {
                 const form2CaracteristicaSinistroAtualizado = await prisma.form2CaracteristicaSinistro.update({
                     where: {
@@ -201,8 +203,17 @@ export class Form2CaracteristicaSinistroController {
                     }
                 });
 
-                return res.status(200).json(form2CaracteristicaSinistroAtualizado);
+                // 3 - Retornar o form2_Caracteristica_Sinistro atualizado com a data formatada
+                const novaLista ={
+                    ...form2CaracteristicaSinistroAtualizado,
+                    data_cadastro: FormatDate(form2CaracteristicaSinistroAtualizado.data_cadastro),
+                };
+              
+                return res.status(200).json(novaLista);
             }
+
+            
+
 
             logger.info({
                 message: `Atualização form2_Caracteristica_Sinistro realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,

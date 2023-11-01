@@ -8,7 +8,6 @@ import { prisma } from '@/database';
 import { relatorioSchema } from '@/schemas/RelatorioSchema';
 import { Tipo_Formulario,  } from '@prisma/client';
 
-
 export class RelatorioController{
     //POST - /relatorio -- Responsável por criar relatórios
     async create (req: Request, res: Response, next: NextFunction){
@@ -22,7 +21,7 @@ export class RelatorioController{
                 url: req.originalUrl,
             });
               
-            //Validar se o numero do processo já existe
+            // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
                     numero_processo: relatorio.numero_processo
@@ -33,7 +32,7 @@ export class RelatorioController{
                 throw new AppError('Número do processo já existe', 400);
             }
             
-            //Cria o relatório
+            // 2 - Criar o relatorio
             const criarRelatorio = await prisma.relatorio.create({
                 data: {
                     numero_processo: relatorio.numero_processo,
@@ -143,7 +142,20 @@ export class RelatorioController{
                 },
             });
 
-            //Usuário usuarios_permitidos
+            //3 - Selecionar o perfil usuário responsável pelo relatório
+            const usuarioResponsavel = await prisma.usuario.findUnique({
+                where: {
+                    id: criarRelatorio.usuario_responsavel_id,
+                },
+                select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    avatar: true,
+                },
+            });
+
+            // 4 - Verificar os usuario com permissão para acesso ao relatório
             const usuariosPermitidos = await prisma.relatorio.findUnique({
                 where: {
                     id: criarRelatorio.id,
@@ -160,20 +172,7 @@ export class RelatorioController{
                 },
             });
 
-            //Usuário usuario_responsavel
-            const usuarioResponsavel = await prisma.usuario.findUnique({
-                where: {
-                    id: criarRelatorio.usuario_responsavel_id,
-                },
-                select: {
-                    id: true,
-                    nome: true,
-                    email: true,
-                    avatar: true,
-                },
-            });
-
-            //Ordenar os formulários selecionados e incluir a etapa de cada formulário
+            // 5 - Ordenar os formulários selecionados e incluir a etapa de cada formulário
             criarRelatorio.formularios_selecionados.sort((a, b) => {
                 const regex = /form(\d+)_/;
                 const numA = parseInt(a.match(regex)![1]);
@@ -188,7 +187,7 @@ export class RelatorioController{
             })) as unknown as Array<Tipo_Formulario & { etapa: string }>;
 
 
-            //Relatorio criado
+            // 6 - Organizar o relatório criado
             const relatorioCriado = {
                 id: criarRelatorio.id,
                 numero_processo: criarRelatorio.numero_processo,
@@ -203,13 +202,14 @@ export class RelatorioController{
                
             };
 
-            //Retorna o relatório criado  
+          
             logger.info({
                 message: `Relatório criado com sucesso. ID: ${criarRelatorio.id}, Numero do Processo: ${criarRelatorio.numero_processo}, Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
 
+            // 7 - Retorna a resposta com o relatório criado
             return res.status(201).json({
                 message : 'Relatório criado com sucesso',
                 relatorioCriado: relatorioCriado
@@ -225,7 +225,6 @@ export class RelatorioController{
             return next(error);
         }
     }
-
     //GET - /relatorio/:numero_processo? -- Responsável por listar um relatório por numero_processo ou todos os relatórios
     async index(req: Request, res: Response, next: NextFunction) {
       
@@ -239,7 +238,7 @@ export class RelatorioController{
                 url: req.originalUrl
             });
 
-            //Selecionar todos os relatórios
+            // 1 - Selecionar todos os relatórios
             const todosRelatoriosExistente = await prisma.relatorio.findMany({
                 where: {
                     numero_processo: numero_processo ? numero_processo as string : undefined,
@@ -291,7 +290,6 @@ export class RelatorioController{
                 },
             });
 
-            // Caso não tiver relatórios cadastrados retorna uma mensagem
             if (todosRelatoriosExistente.length === 0) {
                 let message: string = 'Não existe relatório cadastrado';
                 if (numero_processo) {
@@ -308,7 +306,7 @@ export class RelatorioController{
             }
 
 
-            //Ordenar os formulários selecionados e incluir a etapa de cada formulário
+            // 2 - Ordenar os formulários selecionados e incluir a etapa de cada formulário
             todosRelatoriosExistente.forEach((relatorio) => {
                 relatorio.formularios_selecionados.sort((a, b) => {
                     const regex = /form(\d+)_/;
@@ -324,7 +322,7 @@ export class RelatorioController{
                 })) as unknown as Array<Tipo_Formulario & { etapa: string }>;
             });
 
-            // Filtrar os valores nulos
+            // 3 - Filtrar os formulários existentes no relatório removendo os formulários nulos
             const relatoriosFiltrados = todosRelatoriosExistente.map(relatorio => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const formularioFiltrado: {[key: string]: any} = {};
@@ -353,7 +351,7 @@ export class RelatorioController{
                 };
             });
 
-            //Somar a quantidade de relatórios
+            // 4 - Somar a quantidade de relatórios existentes
             const quantidadeRelatorios = todosRelatoriosExistente.length;
 
 
@@ -364,7 +362,7 @@ export class RelatorioController{
                 url: req.originalUrl
             });
 
-            // Retorna a resposta
+            // 6 - Retorna a resposta com os relatórios e a quantidade de relatórios existentes
             return res.status(200).json({
                 message : message,
                 relatoriosFiltrados: relatoriosFiltrados
@@ -380,53 +378,6 @@ export class RelatorioController{
         }
     }
 
-    //DELETE - /relatorio/:id -- Responsável por deletar relatórios
-    async delete(req: Request, res: Response, next: NextFunction) {
-        const { id } = req.params;
-        const usuario_responsavel = req.usuario;
-        try {
-            logger.info({
-                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} iniciando a ação de deletar o relatório com ID: ${id}`,
-                method: req.method, 
-                url: req.originalUrl
-            });
-              
-            // Recupera o relatório a ser excluído
-            const relatorioDeletado = await prisma.relatorio.findUnique({
-                where: {
-                    id: id,
-                },
-            });
-
-            // Verifica se o relatório existe
-            if (!relatorioDeletado) {
-                throw new AppError('Relatório não encontrado', 404);
-            }
-            
-            //Deleta o relatório
-            const relatorioExcluido = await prisma.relatorio.delete({
-                where: {
-                    id: id,
-                },
-                include: {
-                    formularios: true,
-                },
-            });
-
-            return res.status(200).json({
-                message: 'Relatório excluído com sucesso',
-                relatorio_excluido: relatorioExcluido,
-            });
-        } catch (error) {
-            logger.error({
-                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} encontrou um erro ao deletar o relatório com ID: ${id}. Erro: ${JSON.stringify(error)}`, 
-                method: req.method, 
-                url: req.originalUrl
-            });
-            next(new AppError('Erro ao deletar o relatório', 500));
-        }
-    }
-  
     //PUT - /relatorio/:id -- Responsável por atualizar relatórios ORIGINAL
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
@@ -441,19 +392,18 @@ export class RelatorioController{
                 url: req.originalUrl,
             });
 
-            // Validar se o relatório existe
+            // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
                     id,
                 },  
             });
             
-  
             if(!relatorioExistente){
                 throw new AppError('Relatório não encontrado', 404);
             }
             
-            //verificar quais os fomulários existente no relatório
+            // 2 - verificar quais os fomulários existente no relatório
             const formulariosSelecionadosExistente = await prisma.relatorio.findFirst({
                 where:{
                     numero_processo: relatorioExistente.numero_processo
@@ -463,23 +413,23 @@ export class RelatorioController{
                 }
             });
 
-            // Verifique se existem formulários selecionados existentes no relatório.
+            // 3 - Verificar formularios selecionados existentes no relatório
             const formulariosSelecionadosExistentes = formulariosSelecionadosExistente?.formularios_selecionados || [];
 
-            // Mantenha os valores existentes e adicione os novos valores.
+            // 4 - Mantenha os valores existentes e adicione os novos valores.
             relatorio.formularios_selecionados = [
                 ...formulariosSelecionadosExistentes,
                 ...(relatorio.formularios_selecionados || []),
             ];
 
 
-            // Não permitir que o usuário cadastre o mesmo formulário que já existe no relatório.
+            // 5 - Não permitir que o usuário cadastre o mesmo formulário que já existe no relatório.
             const formulariosSelecionadosUnicos = new Set(relatorio.formularios_selecionados);
             if (formulariosSelecionadosUnicos.size !== relatorio.formularios_selecionados?.length) {
                 throw new AppError('Não é permitido cadastrar o mesmo formulário mais de uma vez', 400);
             }
            
-            ///Atualiza o relatório
+            // 6 - Atualiza o relatório com os novos dados
             const atualizarRelatorio = await prisma.relatorio.update({
                 where: { id },
                 data: {
@@ -678,7 +628,7 @@ export class RelatorioController{
                 },
             });
   
-            //Retornar o relatório atualizado
+            // 7 - Retornar o relatório atualizado
             return res.status(200).json({
                 message : 'Relatório atualizado com sucesso',
                 relatorioAtualizado : atualizarRelatorio
@@ -693,5 +643,52 @@ export class RelatorioController{
         }
     }
 
+    //DELETE - /relatorio/:id -- Responsável por deletar relatórios
+    async delete(req: Request, res: Response, next: NextFunction) {
+        const { id } = req.params;
+        const usuario_responsavel = req.usuario;
+        try {
+            logger.info({
+                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} iniciando a ação de deletar o relatório com ID: ${id}`,
+                method: req.method, 
+                url: req.originalUrl
+            });
+            
+            // 1 - Verificar se o relatório a ser excluído existe
+            const relatorioDeletado = await prisma.relatorio.findUnique({
+                where: {
+                    id: id,
+                },
+            });
+
+            if (!relatorioDeletado) {
+                throw new AppError('Relatório não encontrado', 404);
+            }
+          
+            // 2 - Excluir o relatório
+            const relatorioExcluido = await prisma.relatorio.delete({
+                where: {
+                    id: id,
+                },
+                include: {
+                    formularios: true,
+                },
+            });
+
+            // 3 - Retornar o relatório excluído
+            return res.status(200).json({
+                message: 'Relatório excluído com sucesso',
+                relatorio_excluido: relatorioExcluido,
+            });
+        } catch (error) {
+            logger.error({
+                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} encontrou um erro ao deletar o relatório com ID: ${id}. Erro: ${JSON.stringify(error)}`, 
+                method: req.method, 
+                url: req.originalUrl
+            });
+            
+            next(new AppError('Erro ao deletar o relatório', 500));
+        }
+    }
 
 }

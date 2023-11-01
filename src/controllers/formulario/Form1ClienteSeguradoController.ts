@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 
+import { FormatDate } from '@/utils/DateUtils';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
+
 import { form1ClienteSeguradoSchema } from '@/schemas/FormsSchemas/Form1ClienteSeguradoSchema';
 import { Status_Formulario, Tipo_Formulario } from '@prisma/client';
-import { FormatDate } from '@/utils/DateUtils';
 
 export class Form1ClienteSeguradoController {
 
@@ -23,13 +24,13 @@ export class Form1ClienteSeguradoController {
             });
 
             // 1 - Verificar se o relatório existe
-            const relatorio = await prisma.relatorio.findFirst({
+            const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
                     numero_processo: numero_processo,
                 },
             });
 
-            if (!relatorio) {
+            if (!relatorioExistente) {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
@@ -54,10 +55,10 @@ export class Form1ClienteSeguradoController {
             //4 - Criar um novo registro de form1-cliente-segurado na tabela form1ClienteSegurado
             const newForm1ClienteSegurado = await prisma.form1ClienteSegurado.create({
                 data: {
-                    numero_processo: relatorio.numero_processo,
+                    numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    nome_cliente: relatorio.cliente,
-                    cnpj: relatorio.cnpj,
+                    nome_cliente: relatorioExistente.cliente,
+                    cnpj: relatorioExistente.cnpj,
                     telefone: form1ClienteSegurado.telefone,
                     celular: form1ClienteSegurado.celular,
                     email: form1ClienteSegurado.email,
@@ -74,9 +75,9 @@ export class Form1ClienteSeguradoController {
             });
 
             // 5. Atualizar o campo "formularios_selecionados" do relatório (adicionando form1_Cliente_Segurado)
-            if (!relatorio.formularios_selecionados?.includes('form1_Cliente_Segurado')) {
+            if (!relatorioExistente.formularios_selecionados?.includes('form1_Cliente_Segurado')) {
                 const updatedFormulariosSelecionados = [
-                    ...relatorio.formularios_selecionados ?? [],
+                    ...relatorioExistente.formularios_selecionados ?? [],
                     'form1_Cliente_Segurado',
                 ] as Tipo_Formulario[];
 
@@ -95,7 +96,8 @@ export class Form1ClienteSeguradoController {
                 method: req.method,
                 url: req.originalUrl,
             });
-     
+
+            // 6 - Retornar o form1ClienteSegurado criado
             return res.status(201).json({
                 message: 'Cadastro realizado com sucesso.',
                 form1ClienteSegurado: newForm1ClienteSegurado,
@@ -123,7 +125,7 @@ export class Form1ClienteSeguradoController {
                 method: req.method,
                 url: req.originalUrl,
             });
-          
+            // 1 - Verificar se o form1_Cliente_Segurado existe no relatório
             const form1ClienteSegurado = await prisma.form1ClienteSegurado.findFirst({
                 where: {
                     numero_processo: numero_processo,
@@ -134,6 +136,7 @@ export class Form1ClienteSeguradoController {
                 throw new AppError('Form1ClienteSegurado não encontrado.', 404);
             }
 
+            // 2 - Retornar o form1_Cliente_Segurado com a data formatada
             const novaLista ={
                 ...form1ClienteSegurado,
                 data_cadastro: FormatDate(form1ClienteSegurado.data_cadastro),
@@ -145,6 +148,7 @@ export class Form1ClienteSeguradoController {
                 url: req.originalUrl,
             });
 
+            // 3 - Retornar o form1_Cliente_Segurado
             return res.status(200).json({
                 message: 'Listagem realizada com sucesso.',
                 form1ClienteSegurado: novaLista,
@@ -174,19 +178,18 @@ export class Form1ClienteSeguradoController {
                 url: req.originalUrl,
             });
 
-            //Localizar o form1ClienteSegurado no banco de dados pelo numero_processo vinculado ao relatório
+            // 1 - Verificar se o form1_Cliente_Segurado existe no relatório
             const form1ClienteSeguradoExistente = await prisma.form1ClienteSegurado.findFirst({
                 where: {
                     numero_processo: numero_processo
                 }
             });
              
-            // se não existir
             if(!form1ClienteSeguradoExistente){
                 throw new AppError('Form1ClienteSegurado não encontrado.', 404);
             }
 
-            // Se existir, atualiza
+            // 2 - Atualizar o registro de form1-cliente-segurado na tabela form1ClienteSegurado
             if(form1ClienteSeguradoExistente){
                 const form1ClienteSeguradoAtualizado = await prisma.form1ClienteSegurado.update({
                     where: {
@@ -208,10 +211,14 @@ export class Form1ClienteSeguradoController {
                     }
                 });
 
-                return res.status(200).json(form1ClienteSeguradoAtualizado);
-            }
+                // 3 - Retornar o form1ClienteSegurado atualizado com a data formatada
+                const novaLista ={
+                    ...form1ClienteSeguradoAtualizado,
+                    data_cadastro: FormatDate(form1ClienteSeguradoAtualizado.data_cadastro),
+                };
 
-            //TODO: Tradamento de data_cadastro
+                return res.status(200).json(novaLista);
+            }
 
             logger.info({
                 message: `Atualização form1_Cliente_Segurado realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
@@ -226,7 +233,6 @@ export class Form1ClienteSeguradoController {
                 url: req.originalUrl,
             });
             
-
             return next(error);
         }
     }
@@ -243,7 +249,7 @@ export class Form1ClienteSeguradoController {
                 url: req.originalUrl,
             });
 
-            // 1. Verificar se o "form1-Cliente-Segurado" existe no relatório
+            // 1 - Verificar se o "form1-Cliente-Segurado" existe no relatório
             const relatorio = await prisma.relatorio.findFirst({
                 where: {
                     numero_processo: numero_processo,
@@ -254,14 +260,14 @@ export class Form1ClienteSeguradoController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2. Excluir o registro de form1-cliente-segurado na tabela form1ClienteSegurado
+            // 2 - Excluir o registro de form1-cliente-segurado na tabela form1ClienteSegurado
             await prisma.form1ClienteSegurado.delete({
                 where: {
                     numero_processo: numero_processo,
                 },
             });
 
-            // 3. Atualizar o campo "formularios_selecionados" do relatório (removendo form1_Cliente_Segurado)
+            // 3 - Atualizar o campo "formularios_selecionados" do relatório (removendo form1_Cliente_Segurado)
             if (relatorio.formularios_selecionados.includes('form1_Cliente_Segurado')) {
                 const updatedFormulariosSelecionados = relatorio.formularios_selecionados.filter(
                     (formulario) => formulario !== 'form1_Cliente_Segurado'
@@ -283,13 +289,10 @@ export class Form1ClienteSeguradoController {
                 url: req.originalUrl,
             });
 
-
-
             return res.status(200).json({
                 message: 'Exclusão realizada com sucesso.',
             });
             
-
         } catch (error) {
             logger.error({
                 message: `Erro ao excluir form1_Cliente_Segurado. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
