@@ -206,9 +206,31 @@ model Form3CronologiaSinistro {
 
 model Form4DoCarregamento {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("4")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  transportadora      String?
+  valor_embarcado     String?
+  remetente           String?
+  cep_origem          String?
+  endereco_origem     String?
+  numero_origem       String?
+  cidade_origem       String?
+  bairro_origem       String?
+  uf_origem           String?
+  complemento_origem  String?
+  destinatario        String?
+  cep_destino         String?
+  endereco_destino    String?
+  numero_destino      String?
+  cidade_destino      String?
+  bairro_destino      String?
+  uf_destino          String?
+  complemento_destino String?
+  numero_crtc_dacte   String?
+  numero_nota_fiscal  String?
+  manifesto           String?
 
   formulario_associado      FormulariosDoRelatorio? @relation(fields: [formulariosDoRelatorio_id], references: [id], onDelete: Cascade)
   formulariosDoRelatorio_id String?                 @unique
