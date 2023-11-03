@@ -61,15 +61,15 @@ O progresso atual do desenvolvimento pode ser acompanhado através da lista de t
 
 **📋 Formulários de Cronologia do Sinistro**
 - [x] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Detalhes do Carregamento**
 - [x] Criar Formulário
 - [x] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários do Motorista**
 - [ ] Criar Formulário
