@@ -267,7 +267,6 @@ export class RelatorioController{
                    
                     formularios:{
                         select:{
-                            numero_processo: true,
                             form1_Cliente_Segurado: true,
                             form2_Caracteristica_Sinistro: true,
                             form3_Cronologia_Sinistro: true,
@@ -322,15 +321,19 @@ export class RelatorioController{
                 })) as unknown as Array<Tipo_Formulario & { etapa: string }>;
             });
 
-            // 3 - Filtrar os formulários existentes no relatório removendo os formulários nulos
+            // 3 - Samar a quantidade de formulario existentes
+            const qtd_etapas_formulario = String(todosRelatoriosExistente.map(relatorio => relatorio.formularios_selecionados.length));
+         
+
+            // 4 - Filtrar os formulários existentes no relatório removendo os formulários nulos
             const relatoriosFiltrados = todosRelatoriosExistente.map(relatorio => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const formularioFiltrado: {[key: string]: any} = {};
+                const etapas: {[key: string]: any} = {};
                 for (const key in relatorio.formularios) {
                     if (Object.prototype.hasOwnProperty.call(relatorio.formularios, key)) {
                         const form = relatorio.formularios[key as keyof typeof relatorio.formularios];
                         if (form !== null) {
-                            formularioFiltrado[key] = form;
+                            etapas[key] = form;
                         }
                     }
                 }
@@ -347,15 +350,19 @@ export class RelatorioController{
                     usuario_responsavel: relatorio.usuario_responsavel,
                     usuarios_permitidos: relatorio.usuarios_permitidos,
                     formularios_selecionados: relatorio.formularios_selecionados,
-                    formularios: formularioFiltrado,
+                    formularios: {
+                        numero_processo: relatorio.numero_processo,
+                        qtd_etapas_formulario,
+                        etapas
+                    },
                 };
             });
 
-            // 4 - Somar a quantidade de relatórios existentes
-            const quantidadeRelatorios = todosRelatoriosExistente.length;
+            // 5 - Somar a quantidade de relatórios existentes
+            const qtd_relatorios = todosRelatoriosExistente.length;
 
 
-            const message: string = relatorio_id ? 'Relatório filtrado com sucesso' : `${quantidadeRelatorios} relatórios encontrados`;
+            const message: string = relatorio_id ? 'Relatório filtrado com sucesso' : `${qtd_relatorios} relatórios encontrados`;
             logger.info({
                 message: `${message}. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method, 
@@ -365,7 +372,9 @@ export class RelatorioController{
             // 6 - Retorna a resposta com os relatórios e a quantidade de relatórios existentes
             return res.status(200).json({
                 message : message,
-                relatoriosFiltrados: relatoriosFiltrados
+                relatoriosFiltrados: {
+                    relatoriosFiltrados,
+                }
             });
           
         } catch (error) {
