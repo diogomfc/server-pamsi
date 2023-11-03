@@ -3,17 +3,21 @@ import { NextFunction, Request, Response } from 'express';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
-import { form3CronologiaSinistroSchema } from '@/schemas/FormsSchemas/Form3CronologiaSinistroSchema';
+import { 
+    form3CronologiaSinistroSchema,
+    Form3CronologiaSinistroSchemaType,  
+} from '@/schemas/FormsSchemas/Form3CronologiaSinistroSchema';
+
 import { Status_Formulario, Tipo_Formulario } from '@prisma/client';
 import { FormatDate } from '@/utils/DateUtils';
 
 export class Form3CronologiaSinistroController {
 
-    // POST - /form3-cronologia-sinistro/:numero_processo
+    // POST - /form3-cronologia-sinistro/:numero_processo/:relatorio_id
     async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form3CronologiaSinistro = form3CronologiaSinistroSchema.create.parse(req.body);
+        const form3CronologiaSinistro:Form3CronologiaSinistroSchemaType['create'] = form3CronologiaSinistroSchema.create.parse(req.body);
 
         try {
             logger.info({
@@ -34,7 +38,7 @@ export class Form3CronologiaSinistroController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2 - Verificar se o Form3CronologiaSinistro já existe no relatório
+            // 2 - Verificar se o form3_Cronologia_Sinistro já existe no relatório
             const form3CronologiaSinistroExistente = await prisma.form3CronologiaSinistro.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
@@ -46,14 +50,14 @@ export class Form3CronologiaSinistroController {
             }
 
             // 3 - Buscar numero do formulariosDoRelatorio_id vinculado ao relatório
-            const formulariosDoRelatorio = await prisma.formulariosDoRelatorio.findFirst({
+            const formulariosDoRelatorioVinculado = await prisma.formulariosDoRelatorio.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            // 4 - Criar um novo registro de Form3CronologiaSinistro na tabela form3CronologiaSinistro
-            const newForm3CronologiaSinistro = await prisma.form3CronologiaSinistro.create({
+            // 4 - Criar um novo registro de form3_Cronologia_Sinistro na tabela form3CronologiaSinistro
+            const novoForm3CronologiaSinistro = await prisma.form3CronologiaSinistro.create({
                 data: {
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
@@ -69,14 +73,10 @@ export class Form3CronologiaSinistroController {
                     data_hora_comunicacao: form3CronologiaSinistro.data_hora_comunicacao,
                     agente_pamcary: form3CronologiaSinistro.agente_pamcary,
                     data_hora_chegada_local: form3CronologiaSinistro.data_hora_chegada_local,
-                    formulariosDoRelatorio_id: formulariosDoRelatorio?.id,
+                    formularioDoRelatorio_id: formulariosDoRelatorioVinculado?.id,
                 },
             });
 
-            const novoRegistro = {
-                ...newForm3CronologiaSinistro,
-                data_cadastro: FormatDate(newForm3CronologiaSinistro.data_cadastro),
-            };
 
             // 5 - Atualizar o campo "formularios_selecionados" do relatório (adicionando Form3CronologiaSinistro)
             if (!relatorioExistente.formularios_selecionados?.includes('form3_Cronologia_Sinistro')) {
@@ -87,7 +87,7 @@ export class Form3CronologiaSinistroController {
 
                 await prisma.relatorio.update({
                     where: {
-                        numero_processo: newForm3CronologiaSinistro.numero_processo,
+                        numero_processo: novoForm3CronologiaSinistro.numero_processo,
                     },
                     data: {
                         formularios_selecionados: updatedFormulariosSelecionados,
@@ -101,16 +101,18 @@ export class Form3CronologiaSinistroController {
                 url: req.originalUrl,
             });
 
-            // 6 - Retornar o Form3CronologiaSinistro criado
+            // 6 - Retornar o form3_Cronologia_Sinistro criado
             return res.status(201).json({
-                message: 'Cadastro realizado com sucesso.',
-                Form3CronologiaSinistro: novoRegistro,
+                message: 'Registro realizado com sucesso.',
+                data_registro: FormatDate(novoForm3CronologiaSinistro.data_cadastro),
+                relatorio_id: relatorio_id,
+                formulario_registrado: novoForm3CronologiaSinistro,
             });
 
         } catch (error) {
 
             logger.error({
-                message: `Erro ao criar Form3CronologiaSinistro no relatório. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
+                message: `Erro ao criar form3_Cronologia_Sinistro no relatório. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -119,7 +121,7 @@ export class Form3CronologiaSinistroController {
         }
     }
 
-    // GET - /form3-cronologia-sinistro/:numero_processo
+    // GET - /form3-cronologia-sinistro/:numero_processo/:relatorio_id
     async show(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
@@ -144,21 +146,15 @@ export class Form3CronologiaSinistroController {
             }
 
             // 2 - Verificar se o Form3CronologiaSinistro existe no relatório
-            const form3CronologiaSinistro = await prisma.form3CronologiaSinistro.findFirst({
+            const form3CronologiaSinistroExistente = await prisma.form3CronologiaSinistro.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            if (!form3CronologiaSinistro) {
+            if (!form3CronologiaSinistroExistente) {
                 throw new AppError('form3_Cronologia_Sinistro não encontrado.', 404);
             }
-
-            // 3 - Retornar o Form3CronologiaSinistro com a data formatada
-            const novaLista = {
-                ...form3CronologiaSinistro,
-                data_cadastro: FormatDate(form3CronologiaSinistro.data_cadastro),
-            };
 
             logger.info({
                 message: `Listagem form3_Cronologia_Sinistro realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
@@ -166,10 +162,12 @@ export class Form3CronologiaSinistroController {
                 url: req.originalUrl,
             });
 
-            // 4 - Retornar o Form3CronologiaSinistro
+            // 3 - Retornar o Form3CronologiaSinistro
             return res.status(200).json({
-                message: 'Listagem realizada com sucesso.',
-                Form3CronologiaSinistro: novaLista,
+                message: 'Formulario localizado.',
+                data_registro: FormatDate(form3CronologiaSinistroExistente.data_cadastro),
+                relatorio_id: relatorio_id,
+                formulario_localizado: form3CronologiaSinistroExistente,
             });
 
         } catch (error) {
@@ -183,11 +181,11 @@ export class Form3CronologiaSinistroController {
         }
     }
 
-    // PUT - /form3-cronologia-sinistro/:numero_processo
+    // PUT - /form3-cronologia-sinistro/:numero_processo/:relatorio_id
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form3CronologiaSinistro = form3CronologiaSinistroSchema.update.parse(req.body);
+        const form3CronologiaSinistro:Form3CronologiaSinistroSchemaType['update'] = form3CronologiaSinistroSchema.update.parse(req.body);
 
         try {
             logger.info({
@@ -243,13 +241,12 @@ export class Form3CronologiaSinistroController {
                     }
                 });
 
-                // 3 - Retornar o Form3CronologiaSinistro atualizado com a data formatada
-                const novaLista ={
-                    ...form3CronologiaSinistroAtualizado,
-                    data_cadastro: FormatDate(form3CronologiaSinistroAtualizado.data_cadastro),
-                };
-
-                return res.status(200).json(novaLista);
+                return res.status(200).json({
+                    message: 'Atualização realizada com sucesso.',
+                    data_registro: FormatDate(form3CronologiaSinistroAtualizado.data_cadastro),
+                    relatorio_id: relatorio_id,
+                    formulario_atualizado: form3CronologiaSinistroAtualizado,
+                });
             }
 
             logger.info({
@@ -269,7 +266,7 @@ export class Form3CronologiaSinistroController {
         }
     }
 
-    // DELETE - /form3-cronologia-sinistro/:numero_processo
+    // DELETE - /form3-cronologia-sinistro/:numero_processo/:relatorio_id
     async delete(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
@@ -293,14 +290,25 @@ export class Form3CronologiaSinistroController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2. Excluir o registro de Form3CronologiaSinistro na tabela Form3CronologiaSinistro
-            await prisma.form3CronologiaSinistro.delete({
+            // 2 - Verificar se o form3_Cronologia_Sinistro existe no relatório pelo numero_processo
+            const form3CronologiaSinistroExistente = await prisma.form3CronologiaSinistro.findFirst({
                 where: {
-                    numero_processo: numero_processo,
+                    numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            // 3. Atualizar o campo "formularios_selecionados" do relatório (removendo form3_Cronologia_Sinistro)
+            if (!form3CronologiaSinistroExistente) {
+                throw new AppError('form3_Cronologia_Sinistro não encontrado.', 404);
+            }
+
+            // 3. Excluir o registro de form3_Cronologia_Sinistro do banco de dados
+            await prisma.form3CronologiaSinistro.delete({
+                where: {
+                    numero_processo,
+                },
+            });
+
+            // 4. Atualizar o campo "formularios_selecionados" do relatório (removendo form3_Cronologia_Sinistro)
             if (relatorioExistente.formularios_selecionados.includes('form3_Cronologia_Sinistro')) {
                 const updatedFormulariosSelecionados = relatorioExistente.formularios_selecionados.filter(
                     (formulario) => formulario !== 'form3_Cronologia_Sinistro'
@@ -308,7 +316,8 @@ export class Form3CronologiaSinistroController {
 
                 await prisma.relatorio.update({
                     where: {
-                        numero_processo: numero_processo,
+                        id: relatorio_id,
+                        numero_processo
                     },
                     data: {
                         formularios_selecionados: updatedFormulariosSelecionados,
@@ -324,18 +333,21 @@ export class Form3CronologiaSinistroController {
 
             // 4. Retornar mensagem de sucesso
             return res.status(200).json({
-                message: 'Exclusão realizada com sucesso.',
-              
+                message: 'Etapa excluída do relatório',
+                data_registro: FormatDate(form3CronologiaSinistroExistente.data_cadastro),
+                data_exclusao: FormatDate(new Date()),
+                relatorio_id: relatorio_id,
+                formulario_excluido: form3CronologiaSinistroExistente,
             });
 
-        } catch (err) {
+        } catch (error) {
             logger.error({
-                message: `Erro ao excluir form3_Cronologia_Sinistro. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(err)}`,
+                message: `Erro ao excluir form3_Cronologia_Sinistro. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
 
-            return next(err);
+            return next(error);
         } 
     }
 }
