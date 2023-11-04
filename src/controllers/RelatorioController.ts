@@ -364,6 +364,7 @@ export class RelatorioController{
 
 
             const message: string = relatorio_id ? 'Relatório filtrado com sucesso' : `${qtd_relatorios} relatórios encontrados`;
+            
             logger.info({
                 message: `${message}. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method, 

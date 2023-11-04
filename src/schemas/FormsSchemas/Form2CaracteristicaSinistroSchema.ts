@@ -11,7 +11,6 @@ const createSchema = z.object({
     natureza_sinistro: z.nativeEnum(Natureza_Sinistro).optional(),
     carga_embarcada: baseField('carga_embarcada'),
     valor_carga: baseField('valor_carga'),
-    formulario_associado: baseField('formulario_associado'),
 });
 
 const updateSchema = createSchema.extend({

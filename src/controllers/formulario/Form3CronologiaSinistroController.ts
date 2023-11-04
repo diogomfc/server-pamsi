@@ -17,7 +17,7 @@ export class Form3CronologiaSinistroController {
     async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form3CronologiaSinistro:Form3CronologiaSinistroSchemaType['create'] = form3CronologiaSinistroSchema.create.parse(req.body);
+        const form3CronologiaSinistroBody:Form3CronologiaSinistroSchemaType['create'] = form3CronologiaSinistroSchema.create.parse(req.body);
 
         try {
             logger.info({
@@ -59,21 +59,10 @@ export class Form3CronologiaSinistroController {
             // 4 - Criar um novo registro de form3_Cronologia_Sinistro na tabela form3CronologiaSinistro
             const novoForm3CronologiaSinistro = await prisma.form3CronologiaSinistro.create({
                 data: {
+                    formularioDoRelatorio_id: formulariosDoRelatorioVinculado?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    cep_local_sinistro: form3CronologiaSinistro.cep_local_sinistro,
-                    endereco_local_sinistro: form3CronologiaSinistro.endereco_local_sinistro,
-                    numero_local_sinistro: form3CronologiaSinistro.numero_local_sinistro,
-                    complemento_local_sinistro: form3CronologiaSinistro.complemento_local_sinistro,
-                    bairro_local_sinistro: form3CronologiaSinistro.bairro_local_sinistro,
-                    cidade_local_sinistro: form3CronologiaSinistro.cidade_local_sinistro,
-                    uf_local_sinistro: form3CronologiaSinistro.uf_local_sinistro,
-                    comunicante: form3CronologiaSinistro.comunicante,
-                    data_hora_sinistro: form3CronologiaSinistro.data_hora_sinistro,
-                    data_hora_comunicacao: form3CronologiaSinistro.data_hora_comunicacao,
-                    agente_pamcary: form3CronologiaSinistro.agente_pamcary,
-                    data_hora_chegada_local: form3CronologiaSinistro.data_hora_chegada_local,
-                    formularioDoRelatorio_id: formulariosDoRelatorioVinculado?.id,
+                    ...form3CronologiaSinistroBody,
                 },
             });
 
@@ -185,7 +174,7 @@ export class Form3CronologiaSinistroController {
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form3CronologiaSinistro:Form3CronologiaSinistroSchemaType['update'] = form3CronologiaSinistroSchema.update.parse(req.body);
+        const form3CronologiaSinistroBody:Form3CronologiaSinistroSchemaType['update'] = form3CronologiaSinistroSchema.update.parse(req.body);
 
         try {
             logger.info({
@@ -226,18 +215,7 @@ export class Form3CronologiaSinistroController {
                     },
                     data: {
                         status: Status_Formulario.Formalizando,
-                        cep_local_sinistro: form3CronologiaSinistro.cep_local_sinistro,
-                        endereco_local_sinistro: form3CronologiaSinistro.endereco_local_sinistro,
-                        numero_local_sinistro: form3CronologiaSinistro.numero_local_sinistro,
-                        complemento_local_sinistro: form3CronologiaSinistro.complemento_local_sinistro,
-                        bairro_local_sinistro: form3CronologiaSinistro.bairro_local_sinistro,
-                        cidade_local_sinistro: form3CronologiaSinistro.cidade_local_sinistro,
-                        uf_local_sinistro: form3CronologiaSinistro.uf_local_sinistro,
-                        comunicante: form3CronologiaSinistro.comunicante,
-                        data_hora_sinistro: form3CronologiaSinistro.data_hora_sinistro,
-                        data_hora_comunicacao: form3CronologiaSinistro.data_hora_comunicacao,
-                        agente_pamcary: form3CronologiaSinistro.agente_pamcary,
-                        data_hora_chegada_local: form3CronologiaSinistro.data_hora_chegada_local,
+                        ...form3CronologiaSinistroBody,
                     }
                 });
 

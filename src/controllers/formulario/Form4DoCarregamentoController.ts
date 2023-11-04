@@ -19,7 +19,7 @@ export class Form4DoCarregamentoController {
 
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form4Data: Form4DoCarregamentoSchemaType['create'] = form4DoCarregamentoSchema.create.parse(req.body);
+        const form4DoCarregamentoBody: Form4DoCarregamentoSchemaType['create'] = form4DoCarregamentoSchema.create.parse(req.body);
     
         try {
             logger.info({
@@ -61,11 +61,10 @@ export class Form4DoCarregamentoController {
             // 4 - Criar um novo registro de form4_Do_Carregamento no banco de dados
             const novoForm4DoCarregamento = await prisma.form4DoCarregamento.create({
                 data: {
+                    formularioDoRelatorio_id: formularioDoRelatorio?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Finalizado,
-                    ...form4Data,
-                    formularioDoRelatorio_id: formularioDoRelatorio?.id,
-                   
+                    ...form4DoCarregamentoBody,
                 },
             });
 
@@ -169,7 +168,7 @@ export class Form4DoCarregamentoController {
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form4DoCarregamento: Form4DoCarregamentoSchemaType['update'] = form4DoCarregamentoSchema.update.parse(req.body);
+        const form4DoCarregamentoBody: Form4DoCarregamentoSchemaType['update'] = form4DoCarregamentoSchema.update.parse(req.body);
 
         try{
             logger.info({
@@ -208,8 +207,8 @@ export class Form4DoCarregamentoController {
                         numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
-                        ...form4DoCarregamento,
                         status: Status_Formulario.Formalizando,
+                        ...form4DoCarregamentoBody,
                     }
                 });
 

@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { Tipo_Formulario, Status_Relatorio, Natureza_Sinistro } from '@prisma/client';
-
-const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+import { Regex } from '@/utils/RegexUtils';
 
 const CreateRelatorioSchema = z.object({
     numero_processo: z.string().min(7, {message: 'O número do processo é obrigatório e deve exatamente igual ao fornecido pela torre de operações. Exemplo: 000.000'}),
@@ -9,9 +8,7 @@ const CreateRelatorioSchema = z.object({
         return Object.values(Natureza_Sinistro).includes(value);
     }, {message: 'Por favor, selecione a natureza do sinistro.'}),
     cliente: z.string().min(1, {message: 'O nome do cliente é obrigatório.'}),
-    cnpj: z.string().refine(value => cnpjRegex.test(value), {
-        message: 'Por favor, insira um CNPJ válido no formato XX.XXX.XXX/XXXX-XX.',
-    }),
+    cnpj: z.string().regex(Regex.cnpj, { message: 'O campo cnpj é obrigatório e deve ter o formato 00.000.000/0000-00.' }),
     formularios_selecionados: z.array(z.nativeEnum(Tipo_Formulario)).optional(),
     usuarios_permitidos: z.array(z.string()).optional(),
     data_entrada: z.date().optional(),
@@ -24,9 +21,7 @@ const UpdateRelatorioSchema = z.object({
         return Object.values(Natureza_Sinistro).includes(value);
     }, {message: 'Por favor, selecione a natureza do sinistro.'}).optional(),
     cliente: z.string().min(1, {message: 'O nome do cliente é obrigatório.'}).optional(),
-    cnpj: z.string().refine(value => cnpjRegex.test(value), {
-        message: 'Por favor, insira um CNPJ válido no formato XX.XXX.XXX/XXXX-XX.',
-    }).optional(),
+    cnpj: z.string().regex(Regex.cnpj, { message: 'O campo cnpj é obrigatório e deve ter o formato 00.000.000/0000-00.' }).optional(),
     formularios_selecionados: z.array(z.nativeEnum(Tipo_Formulario)).optional(),
     status: z.nativeEnum(Status_Relatorio).optional(),
     status_recuperacao_carga: z.string().optional(),

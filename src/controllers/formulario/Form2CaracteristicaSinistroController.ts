@@ -17,7 +17,7 @@ export class Form2CaracteristicaSinistroController {
     async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form2CaracteristicaSinistro: Form2CaracteristicaSinistroSchemaType['create'] = form2CaracteristicaSinistroSchema.create.parse(req.body);
+        const form2CaracteristicaSinistroBody: Form2CaracteristicaSinistroSchemaType['create'] = form2CaracteristicaSinistroSchema.create.parse(req.body);
 
         try {
             logger.info({
@@ -59,13 +59,11 @@ export class Form2CaracteristicaSinistroController {
             // 4 - Criar um novo registro de form2-caracteristica-sinistro na tabela form2CaracteristicaSinistro
             const novoForm2CaracteristicaSinistro = await prisma.form2CaracteristicaSinistro.create({
                 data: {
+                    formularioDoRelatorio_id: formulariosDoRelatorioVinculado?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    nome_seguradora: form2CaracteristicaSinistro.nome_seguradora,
                     natureza_sinistro: relatorioExistente.natureza_sinistro,
-                    carga_embarcada: form2CaracteristicaSinistro.carga_embarcada,
-                    valor_carga: form2CaracteristicaSinistro.valor_carga,
-                    formularioDoRelatorio_id: formulariosDoRelatorioVinculado?.id,
+                    ...form2CaracteristicaSinistroBody,
                 },
             });
 
@@ -169,7 +167,7 @@ export class Form2CaracteristicaSinistroController {
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form2CaracteristicaSinistro: Form2CaracteristicaSinistroSchemaType['update'] = form2CaracteristicaSinistroSchema.update.parse(req.body);
+        const form2CaracteristicaSinistroBody: Form2CaracteristicaSinistroSchemaType['update'] = form2CaracteristicaSinistroSchema.update.parse(req.body);
 
         try {
             logger.info({
@@ -207,11 +205,9 @@ export class Form2CaracteristicaSinistroController {
                         numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
-                        nome_seguradora: form2CaracteristicaSinistro.nome_seguradora,
-                        natureza_sinistro: form2CaracteristicaSinistro.natureza_sinistro,
-                        carga_embarcada: form2CaracteristicaSinistro.carga_embarcada,
-                        valor_carga: form2CaracteristicaSinistro.valor_carga,
                         status: Status_Formulario.Formalizando,
+                        natureza_sinistro: relatorioExistente.natureza_sinistro,
+                        ...form2CaracteristicaSinistroBody,
                     }
                 });
                 return res.status(200).json({

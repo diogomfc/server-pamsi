@@ -18,7 +18,7 @@ export class Form1ClienteSeguradoController {
     async create(req: Request, res: Response, next: NextFunction){
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form1ClienteSegurado: Form1ClienteSeguradoSchemaType['create'] = form1ClienteSeguradoSchema.create.parse(req.body);
+        const form1ClienteSeguradoBody: Form1ClienteSeguradoSchemaType['create'] = form1ClienteSeguradoSchema.create.parse(req.body);
 
         try{
             logger.info({
@@ -60,22 +60,12 @@ export class Form1ClienteSeguradoController {
             //4 - Criar um novo registro de form1-cliente-segurado na tabela form1ClienteSegurado
             const novoForm1ClienteSegurado = await prisma.form1ClienteSegurado.create({
                 data: {
+                    formularioDoRelatorio_id: formularioDoRelatorioVinculado?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
                     nome_cliente: relatorioExistente.cliente,
                     cnpj: relatorioExistente.cnpj,
-                    telefone: form1ClienteSegurado.telefone,
-                    celular: form1ClienteSegurado.celular,
-                    email: form1ClienteSegurado.email,
-                    representante: form1ClienteSegurado.representante,
-                    cep: form1ClienteSegurado.cep,
-                    endereco: form1ClienteSegurado.endereco,
-                    numero: form1ClienteSegurado.numero,
-                    complemento: form1ClienteSegurado.complemento,
-                    bairro: form1ClienteSegurado.bairro,
-                    cidade: form1ClienteSegurado.cidade,
-                    uf: form1ClienteSegurado.uf,
-                    formularioDoRelatorio_id: formularioDoRelatorioVinculado?.id,
+                    ...form1ClienteSeguradoBody,
                 },
             });
 
@@ -88,7 +78,7 @@ export class Form1ClienteSeguradoController {
 
                 await prisma.relatorio.update({
                     where: {
-                        numero_processo: novoForm1ClienteSegurado.numero_processo,
+                        numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
                         formularios_selecionados: updatedFormulariosSelecionados,
@@ -186,7 +176,7 @@ export class Form1ClienteSeguradoController {
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form1ClienteSegurado: Form1ClienteSeguradoSchemaType['update'] = form1ClienteSeguradoSchema.update.parse(req.body);
+        const form1ClienteSeguradoBody: Form1ClienteSeguradoSchemaType['update'] = form1ClienteSeguradoSchema.update.parse(req.body);
 
         try{
             logger.info({
@@ -225,18 +215,10 @@ export class Form1ClienteSeguradoController {
                         numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
-                        representante: form1ClienteSegurado.representante,
-                        telefone: form1ClienteSegurado.telefone,
-                        celular: form1ClienteSegurado.celular,
-                        email: form1ClienteSegurado.email,
-                        cep: form1ClienteSegurado.cep,
-                        endereco: form1ClienteSegurado.endereco,
-                        numero: form1ClienteSegurado.numero,
-                        complemento: form1ClienteSegurado.complemento,
-                        bairro: form1ClienteSegurado.bairro,
-                        cidade: form1ClienteSegurado.cidade,
-                        uf: form1ClienteSegurado.uf,
                         status: Status_Formulario.Formalizando,
+                        nome_cliente: relatorioExistente.cliente,
+                        cnpj: relatorioExistente.cnpj,
+                        ...form1ClienteSeguradoBody,
                     }
                 });
 
