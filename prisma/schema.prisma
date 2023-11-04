@@ -240,9 +240,30 @@ model Form4DoCarregamento {
 
 model Form5Motorista {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("5")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  nome_motorista                      String?
+  cpf_motorista                       String?
+  data_nascimento_motorista           DateTime?
+  local_nascimento_motorista          String?
+  cnh_motorista                       String?
+  tipo_cnh_motorista                  String?
+  validade_cnh_motorista              String?
+  cep_motorista                       String?
+  endereco_motorista                  String?
+  numero_motorista                    String?
+  complemento_motorista               String?
+  bairro_motorista                    String?
+  cidade_motorista                    String?
+  uf_motorista                        String?
+  telefone_motorista                  String?
+  celular_motorista                   String?
+  email_motorista                     String?
+  consulta_telerisco_motorista        String?
+  numero_consulta_telerisco_motorista String?
+  data_consulta_telerisco_motorista   String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
