@@ -261,6 +261,7 @@ model Form5Motorista {
   telefone_motorista                  String?
   celular_motorista                   String?
   email_motorista                     String?
+  vinculo_motorista_empresa           String?
   consulta_telerisco_motorista        String?
   numero_consulta_telerisco_motorista String?
   data_consulta_telerisco_motorista   String?
@@ -273,9 +274,28 @@ model Form5Motorista {
 
 model Form6Ajudantes {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("6")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  nome_ajudante             String?
+  cpf_ajudante              String?
+  data_nascimento_ajudante  DateTime?
+  local_nascimento_ajudante String?
+  cnh_ajudante              String?
+  tipo_cnh_ajudante         String?
+  validade_cnh_ajudante     String?
+  cep_ajudante              String?
+  endereco_ajudante         String?
+  numero_ajudante           String?
+  complemento_ajudante      String?
+  bairro_ajudante           String?
+  cidade_ajudante           String?
+  uf_ajudante               String?
+  telefone_ajudante         String?
+  celular_ajudante          String?
+  email_ajudante            String?
+  vinculo_ajudante_empresa  String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique

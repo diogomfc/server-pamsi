@@ -26,6 +26,7 @@ const createSchema = z.object({
     telefone_motorista: z.string().regex(Regex.telefone, { message: 'O campo telefone_motorista é obrigatório e deve ter o formato (00) 0000-0000.' }).optional(), // (00) 0000-0000
     celular_motorista: z.string().regex(Regex.celular, { message: 'O campo celular_motorista é obrigatório e deve ter o formato (00) 00000-0000.' }).optional(), // (00) 00000-0000
     email_motorista: baseField('email_motorista'),
+    vinculo_motorista_empresa: baseField('vinculo_motorista_empresa'),
     consulta_telerisco_motorista: baseField('consulta_telerisco_motorista'),
     numero_consulta_telerisco_motorista: baseField('numero_consulta_telerisco_motorista'),
     data_consulta_telerisco_motorista: z.string().optional(),
