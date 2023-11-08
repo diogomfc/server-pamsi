@@ -1,0 +1,16 @@
+-- AlterTable
+ALTER TABLE "form9_Gerenciamento_Risco_Veiculo" ADD COLUMN     "outros_sistemas_marca" TEXT,
+ADD COLUMN     "outros_sistemas_modelo" TEXT,
+ADD COLUMN     "outros_sistemas_posicionamento" TEXT,
+ADD COLUMN     "outros_sistemas_rastreamento" TEXT,
+ADD COLUMN     "outros_sistemas_tipo" TEXT,
+ADD COLUMN     "rastreador_marca" TEXT,
+ADD COLUMN     "rastreador_modelo" TEXT,
+ADD COLUMN     "rastreador_posicionamento" TEXT,
+ADD COLUMN     "rastreador_sistema_rastreamento" TEXT,
+ADD COLUMN     "rastreador_tipo" TEXT,
+ADD COLUMN     "segunda_tecnologia_marca" TEXT,
+ADD COLUMN     "segunda_tecnologia_modelo" TEXT,
+ADD COLUMN     "segunda_tecnologia_posicionamento" TEXT,
+ADD COLUMN     "segunda_tecnologia_rastreamento" TEXT,
+ADD COLUMN     "segunda_tecnologia_tipo" TEXT;

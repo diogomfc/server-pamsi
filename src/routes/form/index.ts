@@ -8,6 +8,7 @@ import { form5MotoristaRoutes } from './form5-motorista.rutes';
 import { form6AjudantesRoutes } from './form6-ajudantes.routes';
 import { form7VeiculoTransportadorRoutes } from './form7-veiculo-transportador.routes';
 import { form8OrgaoPolicialRoutes } from './form8-orgao-policial.routes';
+import { form9GerenciamentoRiscoRoutes } from './form9-gerenciamento.routes';
 
 export const formRoutes = Router();
 
@@ -20,6 +21,7 @@ formRoutes.use('/form5-motorista', form5MotoristaRoutes);
 formRoutes.use('/form6-ajudantes', form6AjudantesRoutes);
 formRoutes.use('/form7-veiculo-transportador', form7VeiculoTransportadorRoutes);
 formRoutes.use('/form8-orgao-policial', form8OrgaoPolicialRoutes);
+formRoutes.use('/form9-gerenciamento-risco', form9GerenciamentoRiscoRoutes);
 
 
 

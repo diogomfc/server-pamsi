@@ -368,9 +368,65 @@ model Form8OrgaoPolicial {
 
 model Form9GerenciamentoRiscoVeiculo {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("9")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  //Rastreamento
+  rastreador_sistema_rastreamento String?
+  rastreador_marca                String?
+  rastreador_modelo               String?
+  rastreador_tipo                 String?
+  rastreador_posicionamento       String?
+
+  //Segunda tecnologia de Rastreamento
+  segunda_tecnologia_rastreamento   String?
+  segunda_tecnologia_marca          String?
+  segunda_tecnologia_modelo         String?
+  segunda_tecnologia_tipo           String?
+  segunda_tecnologia_posicionamento String?
+
+  //Outros Sistemas de Rastreamento
+  outros_sistemas_rastreamento   String?
+  outros_sistemas_marca          String?
+  outros_sistemas_modelo         String?
+  outros_sistemas_tipo           String?
+  outros_sistemas_posicionamento String?
+
+  //Tipo de Sensores e Atuadores
+  sensor_bloqueio_combustivel Boolean? @default(false)
+  sensor_bloqueio_ignicao     Boolean? @default(false)
+  sensor_trava_5Roda          Boolean? @default(false)
+  sensor_trava_portas_bau     Boolean? @default(false)
+  sensor_porta_cabine         Boolean? @default(false)
+  sensor_porta_bau            Boolean? @default(false)
+  sensor_isca                 Boolean? @default(false)
+  sensor_sonoros_visuais      Boolean? @default(false)
+  sensor_botao_panico         Boolean? @default(false)
+  sensor_teclado              Boolean? @default(false)
+  sensor_desengate_carreta    Boolean? @default(false)
+  sensor_outros               Boolean? @default(false)
+  sensor_outros_descricao     String?
+
+  //Central de monitoramento
+  plano_viagem            Boolean? @default(false)
+  tacografo               Boolean? @default(false)
+  paradas_nao_programadas Boolean? @default(false)
+  rastramento_analisado   Boolean? @default(false)
+  tacografo_analisado     Boolean? @default(false)
+  historico_rastreamento  Boolean? @default(false)
+  macros_transmitida      Boolean? @default(false)
+  sirene_ativada          Boolean? @default(false)
+  bloqueio_rastreador     Boolean? @default(false)
+  vandalismo_rastreador   Boolean? @default(false)
+
+  //Sobre a Última Posição do Rastreamento
+  ultima_posicao_rastreamento_data_hora String?
+  ultima_posicao_rastreamento_descricao String?
+
+  //Sobre os Discos de Tacógrafo
+  disco_tacografo_data_hora String?
+  disco_tacografo_descricao String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
