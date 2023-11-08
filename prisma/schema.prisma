@@ -343,9 +343,22 @@ model Form7VeiculoTransportador {
 
 model Form8OrgaoPolicial {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("8")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  delegacia          String?
+  endereco_delegacia String?
+  numero_delegacia   String?
+  bairro_delegacia   String?
+  cidade_delegacia   String?
+  uf_delegacia       String?
+  cep_delegacia      String?
+  telefone_delegacia String?
+  numero_bo          String?
+  data_bo            String?
+  numero_ip          String?
+  data_ip            String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique

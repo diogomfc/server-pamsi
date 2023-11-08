@@ -5,21 +5,21 @@ import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 
 import {
-    form7VeiculoTransportadorSchema,
-    Form7VeiculoTransportadorSchemaType,
-} from '@/schemas/FormsSchemas/Form7VeiculoTransportadorSchema';
+    form8OrgaoPolicialSchema,
+    Form8OrgaoPolicialSchemaType,
+} from '@/schemas/FormsSchemas/Form8OrgaoPolicialSchema';
 
 import { Status_Formulario, Tipo_Formulario } from '@prisma/client';
 
-export class Form7VeiculoTransportadorController {
+export class Form8OrgaoPolicialController {
     async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form7VeiculoTransportadorBody: Form7VeiculoTransportadorSchemaType['create'] = form7VeiculoTransportadorSchema.create.parse(req.body);
+        const form8OrgaoPolicialBody: Form8OrgaoPolicialSchemaType['create'] = form8OrgaoPolicialSchema.create.parse(req.body);
 
         try {
             logger.info({
-                message: `Iniciando ação de criação form7VeiculoTransportador no relatório. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Iniciando ação de criação form8_Orgao_Policial no relatório. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -36,15 +36,15 @@ export class Form7VeiculoTransportadorController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2 - Verificar se o form7VeiculoTransportador já existe no relatório
-            const form7VeiculoTransportadorExistente = await prisma.form7VeiculoTransportador.findFirst({
+            // 2 - Verificar se o Form8OrgaoPolicial já existe no relatório
+            const form8OrgaoPolicialExistente = await prisma.form8OrgaoPolicial.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            if (form7VeiculoTransportadorExistente) {
-                throw new AppError('form7_Veiculo_Transportador já existe neste relatório', 409);
+            if (form8OrgaoPolicialExistente) {
+                throw new AppError('form8_Orgao_Policial já existe neste relatório', 409);
             }
 
             // 3 - Buscar o ID do formulário vinculado ao relatório
@@ -54,21 +54,21 @@ export class Form7VeiculoTransportadorController {
                 },
             });
 
-            // 4 - Criar um novo registro de form7VeiculoTransportador
-            const novoForm7VeiculoTransportador = await prisma.form7VeiculoTransportador.create({
+            // 4 - Criar um novo registro de Form8OrgaoPolicial
+            const novoForm8OrgaoPolicial = await prisma.form8OrgaoPolicial.create({
                 data: {
                     formularioDoRelatorio_id: formularioDoRelatorioVinculado?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    ...form7VeiculoTransportadorBody,
+                    ...form8OrgaoPolicialBody,
                 },
             });
 
-            // 5. Atualizar o campo "formularios_selecionados" do relatório (adicionando form7VeiculoTransportador)
-            if (!relatorioExistente.formularios_selecionados?.includes('form7_Veiculo_Transportador')) {
+            // 5. Atualizar o campo "formularios_selecionados" do relatório (adicionando Form8OrgaoPolicial)
+            if (!relatorioExistente.formularios_selecionados?.includes('form8_Orgao_Policial')) {
                 const updatedFormulariosSelecionados = [
                     ...relatorioExistente.formularios_selecionados ?? [],
-                    'form7_Veiculo_Transportador',
+                    'form8_Orgao_Policial',
                 ] as Tipo_Formulario[];
 
                 await prisma.relatorio.update({
@@ -81,16 +81,16 @@ export class Form7VeiculoTransportadorController {
                 });
             }
 
-            // 6 - Retornar o form7VeiculoTransportador criado
+            // 6 - Retornar o Form8OrgaoPolicial criado
             return res.status(201).json({
                 message: 'Registro realizado com sucesso.',
-                data_registro: FormatDate(novoForm7VeiculoTransportador.data_cadastro),
+                data_registro: FormatDate(novoForm8OrgaoPolicial.data_cadastro),
                 relatorio_id: relatorio_id,
-                formulario_registrado: novoForm7VeiculoTransportador,
+                formulario_registrado: novoForm8OrgaoPolicial,
             });
         } catch (error) {
             logger.error({
-                message: `Erro ao criar form7_Veiculo_Transportador no relatório. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
+                message: `Erro ao criar form8_Orgao_Policial no relatório. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -105,7 +105,7 @@ export class Form7VeiculoTransportadorController {
 
         try {
             logger.info({
-                message: `Iniciando ação de listagem form7VeiculoTransportador. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Iniciando ação de listagem form8_Orgao_Policial. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -122,33 +122,34 @@ export class Form7VeiculoTransportadorController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2 - Verificar se o form7VeiculoTransportador existe no relatório
-            const form7VeiculoTransportadorExistente = await prisma.form7VeiculoTransportador.findFirst({
+            // 2 - Verificar se o Form8OrgaoPolicial existe no relatório
+            const form8OrgaoPolicialExistente = await prisma.form8OrgaoPolicial.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            if (!form7VeiculoTransportadorExistente) {
-                throw new AppError('form7_Veiculo_Transportador não encontrado', 404);
+            if (!form8OrgaoPolicialExistente) {
+                throw new AppError('form8_Orgao_Policial não encontrado', 404);
             }
 
             logger.info({
-                message: `Listagem form7_Veiculo_Transportador realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Listagem form8_Orgao_Policial realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
 
-            // 3 - Retornar o form7VeiculoTransportador
+            // 3 - Retornar o Form8OrgaoPolicial
             return res.status(200).json({
                 message: 'Formulário localizado.',
-                data_registro: FormatDate(form7VeiculoTransportadorExistente.data_cadastro),
+                data_registro: FormatDate(form8OrgaoPolicialExistente.data_cadastro),
                 relatorio_id: relatorio_id,
-                formulario_localizado: form7VeiculoTransportadorExistente,
+                formulario_localizado: form8OrgaoPolicialExistente,
             });
+            
         } catch (error) {
             logger.error({
-                message: `Erro ao localizar o form7_Veiculo_Transportador. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
+                message: `Erro ao localizar o form8_Orgao_Policial. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -160,11 +161,11 @@ export class Form7VeiculoTransportadorController {
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-        const form7VeiculoTransportadorBody: Form7VeiculoTransportadorSchemaType['update'] = form7VeiculoTransportadorSchema.update.parse(req.body);
+        const form8OrgaoPolicialBody: Form8OrgaoPolicialSchemaType['update'] = form8OrgaoPolicialSchema.update.parse(req.body);
 
         try {
             logger.info({
-                message: `Iniciando ação de atualização form7_Veiculo_Transportador. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Iniciando ação de atualização form8_Orgao_Policial. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -181,45 +182,45 @@ export class Form7VeiculoTransportadorController {
                 throw new AppError('Relatório não encontrado', 404);
             }
 
-            // 2 - Verificar se o form7VeiculoTransportador existe no relatório
-            const form7VeiculoTransportadorExistente = await prisma.form7VeiculoTransportador.findFirst({
+            // 2 - Verificar se o Form8OrgaoPolicial existe no relatório
+            const form8OrgaoPolicialExistente = await prisma.form8OrgaoPolicial.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            if (!form7VeiculoTransportadorExistente) {
-                throw new AppError('form7_Veiculo_Transportador não encontrado.', 404);
+            if (!form8OrgaoPolicialExistente) {
+                throw new AppError('form8_Orgao_Policial não encontrado.', 404);
             }
 
-            // 3 - Atualizar o registro de form7VeiculoTransportador
-            if (form7VeiculoTransportadorExistente) {
-                const form7VeiculoTransportadorAtualizado = await prisma.form7VeiculoTransportador.update({
+            // 3 - Atualizar o registro de Form8OrgaoPolicial
+            if (form8OrgaoPolicialExistente) {
+                const form8OrgaoPolicialAtualizado = await prisma.form8OrgaoPolicial.update({
                     where: {
                         numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
                         status: Status_Formulario.Formalizando,
-                        ...form7VeiculoTransportadorBody
+                        ...form8OrgaoPolicialBody
                     },
                 });
 
                 return res.status(200).json({
                     message: 'Atualização realizada com sucesso.',
-                    data_registro: FormatDate(form7VeiculoTransportadorAtualizado.data_cadastro),
+                    data_registro: FormatDate(form8OrgaoPolicialAtualizado.data_cadastro),
                     relatorio_id: relatorio_id,
-                    formulario_atualizado: form7VeiculoTransportadorAtualizado,
+                    formulario_atualizado: form8OrgaoPolicialAtualizado,
                 });
             }
 
             logger.info({
-                message: `Atualização form7_Veiculo_Transportador realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Atualização form8_Orgao_Policial realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
         } catch (error) {
             logger.error({
-                message: `Erro ao atualizar form7_Veiculo_Transportador. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
+                message: `Erro ao atualizar form8_Orgao_Policial. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -234,7 +235,7 @@ export class Form7VeiculoTransportadorController {
 
         try {
             logger.info({
-                message: `Iniciando ação de exclusão form7_Veiculo_Transportador. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Iniciando ação de exclusão form8_Orgao_Policial. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -251,33 +252,32 @@ export class Form7VeiculoTransportadorController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 2 - Verificar se o form7VeiculoTransportador existe no relatório pelo número de processo
-            const form7VeiculoTransportadorExistente = await prisma.form7VeiculoTransportador.findFirst({
+            // 2 - Verificar se o Form8OrgaoPolicial existe no relatório pelo número de processo
+            const form8OrgaoPolicialExistente = await prisma.form8OrgaoPolicial.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
             });
 
-            if (!form7VeiculoTransportadorExistente) {
-                throw new AppError('form7_Veiculo_Transportador não encontrado.', 404);
+            if (!form8OrgaoPolicialExistente) {
+                throw new AppError('form8_Orgao_Policial não encontrado.', 404);
             }
 
-            // 3 - Excluir o registro de form7VeiculoTransportador na tabela form7VeiculoTransportador
-            await prisma.form7VeiculoTransportador.delete({
+            // 3 - Excluir o registro de Form8OrgaoPolicial na tabela Form8OrgaoPolicial
+            await prisma.form8OrgaoPolicial.delete({
                 where: {
                     numero_processo,
                 },
             });
 
-            // 4 - Atualizar o campo "formularios_selecionados" do relatório (removendo form7VeiculoTransportador)
-            if (relatorioExistente.formularios_selecionados.includes('form7_Veiculo_Transportador')) {
-                const updatedFormulariosSelecionados = relatorioExistente.formularios_selecionados.filter(
-                    (formulario) => formulario !== 'form7_Veiculo_Transportador'
-                );
+            // 4 - Atualizar o campo "formularios_selecionados" do relatório (removendo Form 8 orgao policial)
+
+            if (relatorioExistente.formularios_selecionados?.includes('form8_Orgao_Policial')) {
+                const updatedFormulariosSelecionados = relatorioExistente.formularios_selecionados.filter((formulario) => formulario !== 'form8_Orgao_Policial');
 
                 await prisma.relatorio.update({
                     where: {
-                        id: relatorio_id,
+                        numero_processo,
                     },
                     data: {
                         formularios_selecionados: updatedFormulariosSelecionados,
@@ -285,8 +285,9 @@ export class Form7VeiculoTransportadorController {
                 });
             }
 
+          
             logger.info({
-                message: `Exclusão form7_Veiculo_Transportador realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
+                message: `Exclusão form8_Orgao_Policial realizada com sucesso. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -294,14 +295,15 @@ export class Form7VeiculoTransportadorController {
             // 5 - Retornar mensagem de sucesso
             return res.status(200).json({
                 message: 'Etapa excluída do relatório',
-                data_registro: FormatDate(form7VeiculoTransportadorExistente.data_cadastro),
+                data_registro: FormatDate(form8OrgaoPolicialExistente.data_cadastro),
                 data_exclusao: FormatDate(new Date()),
                 relatorio_id: relatorio_id,
-                formulario_excluido: form7VeiculoTransportadorExistente,
+                formulario_excluido: form8OrgaoPolicialExistente,
             });
+
         } catch (error) {
             logger.error({
-                message: `Erro ao excluir form7_Veiculo_Transportador. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
+                message: `Erro ao excluir form8_Orgao_Policial. Usuario:${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}. Erro: ${JSON.stringify(error)}`,
                 method: req.method,
                 url: req.originalUrl,
             });
@@ -310,5 +312,3 @@ export class Form7VeiculoTransportadorController {
         }
     }
 }
-
-           
