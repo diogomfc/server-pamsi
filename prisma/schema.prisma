@@ -305,9 +305,35 @@ model Form6Ajudantes {
 
 model Form7VeiculoTransportador {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("7")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  //Cavalo Mecânico
+  placa_cavalo_mecanico                 String?
+  renavam_cavalo_mecanico               String?
+  chassi_cavalo_mecanico                String?
+  marca_cavalo_mecanico                 String?
+  modelo_cavalo_mecanico                String?
+  ano_fabricacao_cavalo_mecanico        String?
+  ano_modelo_cavalo_mecanico            String?
+  cor_cavalo_mecanico                   String?
+  proprietario_cavalo_mecanico          String?
+  cpf_cnpj_proprietario_cavalo_mecanico String?
+  uf_cavalo_mecanico                    String?
+
+  //Carreta
+  placa_carreta                 String?
+  renavam_carreta               String?
+  chassi_carreta                String?
+  marca_carreta                 String?
+  modelo_carreta                String?
+  ano_fabricacao_carreta        String?
+  ano_modelo_carreta            String?
+  cor_carreta                   String?
+  proprietario_carreta          String?
+  cpf_cnpj_proprietario_carreta String?
+  uf_carreta                    String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
