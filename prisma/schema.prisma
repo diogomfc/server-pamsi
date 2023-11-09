@@ -436,9 +436,16 @@ model Form9GerenciamentoRiscoVeiculo {
 
 model Form10SistemasProtecaoCarregamento {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("10")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  //Proteção
+  protecao_escolta  Boolean? @default(false)
+  protecao_comboio  Boolean? @default(false)
+  protecao_velada   Boolean? @default(false)
+  protecao_outros   Boolean? @default(false)
+  protecao_veiculos String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
