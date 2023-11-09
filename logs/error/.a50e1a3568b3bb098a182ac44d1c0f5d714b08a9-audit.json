@@ -1,0 +1,40 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 7
+    },
+    "auditLog": "logs/error/.a50e1a3568b3bb098a182ac44d1c0f5d714b08a9-audit.json",
+    "files": [
+        {
+            "date": 1698932062960,
+            "name": "logs/error/pamsi-error-02-11-2023.log",
+            "hash": "c5b112595aaecfa7f2769d6aaf8b21fbd00ff694bd8f8cbf261a8aea1f766434"
+        },
+        {
+            "date": 1699029949448,
+            "name": "logs/error/pamsi-error-03-11-2023.log",
+            "hash": "00eb83dd58dc791c37ad3d40107af30c711fff63f6ea75fa4a55ac6f1d5a0134"
+        },
+        {
+            "date": 1699099149598,
+            "name": "logs/error/pamsi-error-04-11-2023.log",
+            "hash": "c4794bd8b6b4f852d566e0fdb61df6198c0b46bfd9b6e2f8e622a260b79095f6"
+        },
+        {
+            "date": 1699299940839,
+            "name": "logs/error/pamsi-error-06-11-2023.log",
+            "hash": "5cd5addbdbb66123088d1eff15686773ec27912a2f9631186a8f7f1cbb1e884b"
+        },
+        {
+            "date": 1699456613904,
+            "name": "logs/error/pamsi-error-08-11-2023.log",
+            "hash": "58a06ff2ce24b8aa02da79a43d5904da340f00cde4bf047f7f8a1e48b75a66e0"
+        },
+        {
+            "date": 1699532797825,
+            "name": "logs/error/pamsi-error-09-11-2023.log",
+            "hash": "a5d103230c193857a41c584e90877a012183d1f8f4d9ca3340974308c188a321"
+        }
+    ],
+    "hashType": "sha256"
+}
