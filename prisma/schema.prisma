@@ -455,23 +455,25 @@ model Form10SistemasProtecaoCarregamento {
 
 model Form11DeclaracaoMotoristaAjudante {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("11")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
 
-  arquivos_declaracoes Arquivo[]
+  file_declaracao_motorista String?
+  file_declaracao_ajudante  String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
+  Arquivo                  Arquivo[]
 
   @@map("form11_Declaracao_Motorista_Ajudante")
 }
 
 model Form12GerenciamentoRiscoDeposito {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("12")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique

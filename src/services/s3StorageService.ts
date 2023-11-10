@@ -12,6 +12,8 @@ import { logger } from '@/utils/Logger';
 const s3Storage = (folderName: string) => multerS3({
     s3: s3Client,
     bucket: 'upload-files-api-pamsi',
+    acl: 'public-read',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
     metadata:  (req, file, cb) => {
         cb(null, {fieldName: file.fieldname});
     },

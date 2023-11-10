@@ -10,6 +10,7 @@ import { form7VeiculoTransportadorRoutes } from './form7-veiculo-transportador.r
 import { form8OrgaoPolicialRoutes } from './form8-orgao-policial.routes';
 import { form9GerenciamentoRiscoRoutes } from './form9-gerenciamento.routes';
 import { form10SistemasProtecaoCarregamentoRoutes } from './form10-sistemas-protecao-carregamento.routes';
+import { form11DeclaracaoMotoristaAjudanteRoutes } from './form11-declaracao-motorista-ajudante.routes';
 
 export const formRoutes = Router();
 
@@ -24,7 +25,7 @@ formRoutes.use('/form7-veiculo-transportador', form7VeiculoTransportadorRoutes);
 formRoutes.use('/form8-orgao-policial', form8OrgaoPolicialRoutes);
 formRoutes.use('/form9-gerenciamento-risco', form9GerenciamentoRiscoRoutes);
 formRoutes.use('/form10-sistemas-protecao-carregamento', form10SistemasProtecaoCarregamentoRoutes);
-
+formRoutes.use('/form11-declaracao-motorista-ajudante', form11DeclaracaoMotoristaAjudanteRoutes);
 
 
 

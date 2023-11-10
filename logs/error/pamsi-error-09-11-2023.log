@@ -1,0 +1,54 @@
+❌ [error] - 09-11-2023 15:44:36
+
+
+MESSAGE: Erro ao fazer upload de múltiplos arquivos: TypeError: Cannot read properties of undefined (reading 'numero_processo')
+
+
+❌ [error] - 09-11-2023 15:45:31
+
+
+MESSAGE: Erro ao fazer upload de múltiplos arquivos: TypeError: Cannot read properties of undefined (reading 'numero_processo')
+
+
+❌ [error] - 09-11-2023 15:47:41
+
+
+MESSAGE: Erro ao fazer upload de múltiplos arquivos: TypeError: Cannot read properties of undefined (reading 'numero_processo')
+
+
+❌ [error] - 09-11-2023 16:05:15
+METHOD: POST
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Erro ao criar form11_Declaracao_Motorista_Ajudante no relatório. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58. Erro: {"message":"form11_Declaracao_Motorista_Ajudante já existe neste relatório","statusCode":409}
+
+
+❌ [error] - 09-11-2023 19:20:03
+METHOD: PUT
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Erro ao atualizar  form11_Declaracao_Motorista_Ajudante no relatório. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58. Erro: {"message":"Pelo menos um arquivo é necessário para o upload","statusCode":400}
+
+
+❌ [error] - 09-11-2023 19:23:30
+METHOD: PUT
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Erro ao atualizar  form11_Declaracao_Motorista_Ajudante no relatório. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58. Erro: {"message":"Pelo menos um arquivo é necessário para o upload","statusCode":400}
+
+
+❌ [error] - 09-11-2023 19:23:44
+METHOD: GET
+URL: /relatorios/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58, encontrou um erro ao listar relatórios: {"name":"PrismaClientUnknownRequestError","clientVersion":"5.5.2"}
+
+
+❌ [error] - 09-11-2023 19:23:52
+METHOD: GET
+URL: /relatorios/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58, encontrou um erro ao listar relatórios: {"name":"PrismaClientUnknownRequestError","clientVersion":"5.5.2"}
+
+
+❌ [error] - 09-11-2023 19:39:33
+METHOD: PUT
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Erro ao atualizar  form11_Declaracao_Motorista_Ajudante no relatório. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58. Erro: {"message":"Pelo menos um arquivo é necessário para o upload","statusCode":400}
+
+

@@ -278,7 +278,27 @@ export class RelatorioController{
                             form8_Orgao_Policial: true,
                             form9_Gerenciamento_Risco_Veiculo: true,
                             form10_Sistemas_Protecao_Carregamento: true,
-                            form11_Declaracao_Motorista_Ajudante: true,
+                            form11_Declaracao_Motorista_Ajudante: {
+                                select:{
+                                    id: true,
+                                    numero_processo: true,
+                                    status: true,
+                                    data_cadastro: true,
+                                    formularioDoRelatorio_id: true,
+                                    file_declaracao_ajudante: true,
+                                    file_declaracao_motorista: true,
+                                    // arquivos_declaracoes:{
+                                    //     select:{
+                                    //         id: true,
+                                    //         numero_processo: true,
+                                    //         nome: true,
+                                    //         tamanho: true,
+                                    //         chave: true,
+                                    //         localizacao: true,
+                                    //     }
+                                    // }
+                                }
+                            },
                             form12_Gerenciamento_Risco_Deposito: true,
                             form13_Locais_Evento: true,
                             form14_Resumo_Averiguacoes: true,

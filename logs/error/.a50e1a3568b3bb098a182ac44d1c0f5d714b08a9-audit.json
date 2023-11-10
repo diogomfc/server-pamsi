@@ -6,11 +6,6 @@
     "auditLog": "logs/error/.a50e1a3568b3bb098a182ac44d1c0f5d714b08a9-audit.json",
     "files": [
         {
-            "date": 1698932062960,
-            "name": "logs/error/pamsi-error-02-11-2023.log",
-            "hash": "c5b112595aaecfa7f2769d6aaf8b21fbd00ff694bd8f8cbf261a8aea1f766434"
-        },
-        {
             "date": 1699029949448,
             "name": "logs/error/pamsi-error-03-11-2023.log",
             "hash": "00eb83dd58dc791c37ad3d40107af30c711fff63f6ea75fa4a55ac6f1d5a0134"
@@ -34,6 +29,11 @@
             "date": 1699532797825,
             "name": "logs/error/pamsi-error-09-11-2023.log",
             "hash": "a5d103230c193857a41c584e90877a012183d1f8f4d9ca3340974308c188a321"
+        },
+        {
+            "date": 1699621242292,
+            "name": "logs/error/pamsi-error-10-11-2023.log",
+            "hash": "c8de70a9e290c850902f1e18002fc2d8155b13d63f302750e37ccc332ccbde05"
         }
     ],
     "hashType": "sha256"
