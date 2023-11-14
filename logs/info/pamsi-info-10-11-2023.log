@@ -5182,3 +5182,135 @@ URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66
 MESSAGE: Exclusão de arquivos form11_Declaracao_Motorista_Ajudante no relatório realizada com sucesso. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
 
 
+🔵 [info] - 10-11-2023 20:51:26
+METHOD: POST
+URL: /login
+MESSAGE: Tentativa de login realizada. Email: admin@admin.com.
+
+
+🔵 [info] - 10-11-2023 20:51:26
+METHOD: POST
+URL: /login
+MESSAGE: Ação de login realizada. Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 20:51:26
+METHOD: POST
+URL: /login
+MESSAGE: Tentativa de login realizada. Email: admin@admin.com.
+
+
+🔵 [info] - 10-11-2023 20:51:26
+METHOD: POST
+URL: /login
+MESSAGE: Ação de login realizada. Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 20:51:26
+
+
+MESSAGE: Autenticação bem-sucedida: Usuário Admin Pamcary (ID: 57b3d959-d13f-41d0-992b-e8afc257db58) se autenticou com sucesso.
+
+
+🔵 [info] - 10-11-2023 20:51:30
+METHOD: POST
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Iniciando ação de criação de arquivos form11_Declaracao_Motorista_Ajudante no relatório. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+METHOD: POST
+URL: /login
+MESSAGE: Tentativa de login realizada. Email: admin@admin.com.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+METHOD: POST
+URL: /login
+MESSAGE: Ação de login realizada. Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+METHOD: POST
+URL: /login
+MESSAGE: Tentativa de login realizada. Email: admin@admin.com.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+METHOD: POST
+URL: /login
+MESSAGE: Ação de login realizada. Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+
+
+MESSAGE: Autenticação bem-sucedida: Usuário Admin Pamcary (ID: 57b3d959-d13f-41d0-992b-e8afc257db58) se autenticou com sucesso.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+
+
+MESSAGE: Acesso autorizado: Usuário Admin Pamcary (57b3d959-d13f-41d0-992b-e8afc257db58) com função Admin acessou o recurso /000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13.
+
+
+🔵 [info] - 10-11-2023 21:10:35
+METHOD: DELETE
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Iniciando ação de exclusão form11_Declaracao_Motorista_Ajudante no relatório. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 21:10:36
+METHOD: DELETE
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Arquivo files-declaracao-motorista-ajudante/processo:000.002/8cefd6092fa45cf891c9-HandlerImageDocs.gif excluído com sucesso do Amazon S3.
+
+
+🔵 [info] - 10-11-2023 21:10:36
+METHOD: DELETE
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Arquivo files-declaracao-motorista-ajudante/processo:000.002/831c1cb0a4136ffa3e0b-HandlerImageDocs.gif excluído com sucesso do Amazon S3.
+
+
+🔵 [info] - 10-11-2023 21:10:36
+METHOD: DELETE
+URL: /forms/form11-declaracao-motorista-ajudante/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Exclusão de arquivos form11_Declaracao_Motorista_Ajudante no relatório realizada com sucesso. Usuario:Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 22:16:18
+METHOD: POST
+URL: /login
+MESSAGE: Tentativa de login realizada. Email: admin@admin.com.
+
+
+🔵 [info] - 10-11-2023 22:16:18
+METHOD: POST
+URL: /login
+MESSAGE: Ação de login realizada. Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 22:16:18
+METHOD: POST
+URL: /login
+MESSAGE: Tentativa de login realizada. Email: admin@admin.com.
+
+
+🔵 [info] - 10-11-2023 22:16:18
+METHOD: POST
+URL: /login
+MESSAGE: Ação de login realizada. Usuário: Admin Pamcary - ID: 57b3d959-d13f-41d0-992b-e8afc257db58.
+
+
+🔵 [info] - 10-11-2023 22:16:19
+METHOD: POST
+URL: /forms/arquivo/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Tentativa de criação de arquivo para o processo 000.002 - Formulário ID: bd8b58d7-738f-4332-ae66-dc4f06d8cd13.
+
+
+🔵 [info] - 10-11-2023 22:16:19
+METHOD: POST
+URL: /forms/arquivo/000.002/bd8b58d7-738f-4332-ae66-dc4f06d8cd13
+MESSAGE: Arquivo criado para o processo 000.002 - Formulário ID: bd8b58d7-738f-4332-ae66-dc4f06d8cd13.
+
+

@@ -10,7 +10,10 @@ declare namespace Express {
     relatorio:{
       relatorio_id: string;
       numero_processo: string;
-      form_id: string;
+      form:{
+        form_id: string;
+        form_nome: string;
+      }
     }
   }
 }

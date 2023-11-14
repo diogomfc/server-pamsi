@@ -459,12 +459,10 @@ model Form11DeclaracaoMotoristaAjudante {
   status          Status_Formulario @default(Pendente)
   data_cadastro   DateTime          @default(now())
 
-  file_declaracao_motorista String?
-  file_declaracao_ajudante  String?
+  arquivos_declaracoes Arquivo[] @relation("arquivos_declaracoes")
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
-  Arquivo                  Arquivo[]
 
   @@map("form11_Declaracao_Motorista_Ajudante")
 }
@@ -483,15 +481,11 @@ model Form12GerenciamentoRiscoDeposito {
 
 model Form13LocaisEvento {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("13")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
 
-  // Adicione os outros campos específicos deste formulário aqui
-  // Exemplo: campo1: TipoDoCampo1
-  // campo2: TipoDoCampo2
-
-  foto_local_da_Abordagem Arquivo[]
+  fotos_local_da_Abordagem Arquivo[] @relation("fotos_local_da_Abordagem")
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
@@ -525,15 +519,11 @@ model Form15RecuperacaoCarga {
 
 model Form16AnexosFotograficos {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("16")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
 
-  arquivos_declaracoes Arquivo[]
-
-  // Adicione os outros campos específicos deste formulário aqui
-  // Exemplo: campo1: TipoDoCampo1
-  // campo2: TipoDoCampo2
+  anexos_fotograficos Arquivo[] @relation("anexos_fotograficos")
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
@@ -558,20 +548,24 @@ model Form17Conclusao {
 }
 
 //**Model de Arquivo**
-model Arquivo {
-  id              String  @id @default(uuid())
-  nome            String?
-  tamanho         Int?
-  chave           String
-  localizacao     String
-  numero_processo String? @unique
 
-  form11_Declaracao_Motorista_Ajudante    Form11DeclaracaoMotoristaAjudante? @relation(fields: [form11_Declaracao_Motorista_Ajudante_id], references: [id], onDelete: Cascade)
-  form11_Declaracao_Motorista_Ajudante_id String?
-  form13_Locais_Evento                    Form13LocaisEvento?                @relation(fields: [form13_Locais_Evento_id], references: [id], onDelete: Cascade)
-  form13_Locais_Evento_id                 String?
-  form16_Anexos_Fotograficos              Form16AnexosFotograficos?          @relation(fields: [form16_Anexos_Fotograficos_id], references: [id], onDelete: Cascade)
-  form16_Anexos_Fotograficos_id           String?
+model Arquivo {
+  id              String   @id @default(uuid())
+  numero_processo String
+  relatorio_id    String
+  data_cadastro   DateTime @default(now())
+
+  form_id   String?
+  form_nome String?
+
+  arquivos_form11DeclaracaoMotoristaAjudante Form11DeclaracaoMotoristaAjudante[] @relation("arquivos_declaracoes")
+  arquivos_form13LocaisEvento                Form13LocaisEvento[]                @relation("fotos_local_da_Abordagem")
+  arquivos_form16AnexosFotograficos          Form16AnexosFotograficos[]          @relation("anexos_fotograficos")
+
+  arquivo_nome        String?
+  arquivo_tamanho     Int?
+  arquivo_chave       String
+  arquivo_localizacao String
 
   @@map("arquivos")
 }

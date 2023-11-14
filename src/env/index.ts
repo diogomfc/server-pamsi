@@ -13,6 +13,7 @@ const envSchema = z.object({
     AWS_SECRET_ACCESS: z.string(),
     AWS_DEFAULT_REGION: z.string(),
     S3_BASE_URL: z.string().url(),
+    S3_BUCKET_NAME: z.string(),
 });
 
 export const _env = envSchema.safeParse(process.env);

@@ -7,11 +7,12 @@ import multerS3 from 'multer-s3';
 import { s3Client } from '@/configs/s3Storage';
 import { AppError } from '@/utils/AppError';
 import { logger } from '@/utils/Logger';
+import { env } from '@/env';
 
 // Função para configurar o armazenamento S3
 const s3Storage = (folderName: string) => multerS3({
     s3: s3Client,
-    bucket: 'upload-files-api-pamsi',
+    bucket: env.S3_BUCKET_NAME,
     acl: 'public-read',
     contentType: multerS3.AUTO_CONTENT_TYPE,
     metadata:  (req, file, cb) => {
@@ -76,7 +77,7 @@ const uploadMultipleFilesToS3 = (fieldName: string, maxCount: number, folderName
 const deleteFileFromS3 = async (fileKey: string): Promise<void> => {
     try {
         const deleteCommand = new DeleteObjectCommand({
-            Bucket: 'upload-files-api-pamsi',
+            Bucket: env.S3_BUCKET_NAME,
             Key: fileKey
         });
         await s3Client.send(deleteCommand);
@@ -87,8 +88,8 @@ const deleteFileFromS3 = async (fileKey: string): Promise<void> => {
 };
 
 export const S3StorageService = {
-    uploadSingleFileToS3,
-    uploadFieldsToS3,
-    uploadMultipleFilesToS3,
-    deleteFileFromS3
+    single: uploadSingleFileToS3,
+    fields: uploadFieldsToS3,
+    multiple: uploadMultipleFilesToS3,
+    delete: deleteFileFromS3,
 };

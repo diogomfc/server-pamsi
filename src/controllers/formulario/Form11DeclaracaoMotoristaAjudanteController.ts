@@ -5,17 +5,16 @@ import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 
 import { Status_Formulario, Tipo_Formulario } from '@prisma/client';
+import { 
+    form11DeclaracaoMotoristaAjudanteSchema,
+    Form11DeclaracaoMotoristaAjudanteSchemaType 
+} from '@/schemas/FormsSchemas/Form11DeclaracaoMotoristaAjudanteSchema';
 import { S3StorageService } from '@/services/s3StorageService';
 
 export class Form11DeclaracaoMotoristaAjudanteController {
     async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
-
-        const files = req.files as {[key: string]: Express.MulterS3.File[]};
-
-        const declaracaoMotorista = files.file_declaracao_motorista ? files.file_declaracao_motorista[0] : null;
-        const declaracaoAjudante = files.file_declaracao_ajudante ? files.file_declaracao_ajudante[0] : null;
 
         try {
             logger.info({
@@ -60,13 +59,10 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                     formularioDoRelatorio_id: formularioDoRelatorioVinculado?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    file_declaracao_ajudante: decodeURIComponent(String(declaracaoAjudante?.location)),
-                    file_declaracao_motorista:  decodeURIComponent(String(declaracaoMotorista?.location)),
                 },
             });
 
             // 5. Atualizar o campo "formularios_selecionados" do relatório (adicionando form11DeclaracaoMotoristaAjudante)  
-
             if (!relatorioExistente.formularios_selecionados?.includes(
                 'form11_Declaracao_Motorista_Ajudante'
             )) {
@@ -103,16 +99,12 @@ export class Form11DeclaracaoMotoristaAjudanteController {
             return next(error);
         }
     }
-  
+
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { numero_processo, relatorio_id } = req.params;
+        const form11DeclaracaoMotoristaAjudanteBody: Form11DeclaracaoMotoristaAjudanteSchemaType['update'] = form11DeclaracaoMotoristaAjudanteSchema.update.parse(req.body);
 
-        const files = req.files as {[key: string]: Express.MulterS3.File[]};
-
-        const declaracaoMotorista = files.file_declaracao_motorista ? files.file_declaracao_motorista[0] : null;
-        const declaracaoAjudante = files.file_declaracao_ajudante ? files.file_declaracao_ajudante[0] : null;
-      
         try {
 
             logger.info({
@@ -121,12 +113,8 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                 url: req.originalUrl,
             });
 
-            // 1 - Validar os arquivos enviados
-            if (!declaracaoMotorista && !declaracaoAjudante) {
-                throw new AppError('Pelo menos um arquivo é necessário para o upload', 400);
-            }
-
-            // 2 - Verificar se o relatório existe
+           
+            // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
                     id: relatorio_id,
@@ -138,7 +126,7 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                 throw new AppError('Relatório não encontrado.', 404);
             }
 
-            // 3 - Verificar se o form11_Declaracao_Motorista_Ajudante já existe no relatório
+            // 2 - Verificar se o form11_Declaracao_Motorista_Ajudante já existe no relatório
             const form11DeclaracaoMotoristaAjudanteExistente = await prisma.form11DeclaracaoMotoristaAjudante.findFirst({
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
@@ -151,22 +139,14 @@ export class Form11DeclaracaoMotoristaAjudanteController {
             }
 
           
-            // 5 - caso exista, efetuar o upload dos arquivos e atualizar o registro
+            // 3 - caso exista, efetuar o upload dos arquivos e atualizar o registro
             if(form11DeclaracaoMotoristaAjudanteExistente){
                 const form11DeclaracaoMotoristaAjudanteAtualizado = await prisma.form11DeclaracaoMotoristaAjudante.update({
                     where: {
                         numero_processo: relatorioExistente.numero_processo,
                     },
                     data: {
-                        status: Status_Formulario.Formalizando,
-                        file_declaracao_ajudante: declaracaoAjudante?.location,
-                        file_declaracao_motorista:  declaracaoMotorista?.location
-
-                        // file_declaracao_ajudante: form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_ajudante === '' ? String(declaracaoAjudante?.location): form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_ajudante,
-                        // file_declaracao_motorista: form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_motorista === '' ? String(declaracaoMotorista?.location): form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_motorista,
-
-                        // file_declaracao_ajudante:  (declaracaoAjudante && declaracaoAjudante.filename !== '') ? declaracaoAjudante.filename : form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_ajudante,
-                        // file_declaracao_motorista:  (declaracaoMotorista && declaracaoMotorista.filename !== '') ? declaracaoMotorista.filename : form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_motorista 
+                        ...form11DeclaracaoMotoristaAjudanteBody,
                     },
                 });
 
@@ -223,6 +203,18 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
+                include:{
+                    arquivos_declaracoes:{
+                        where:{
+                            form_nome: relatorioExistente.formularios_selecionados.find((form) => form === 'form11_Declaracao_Motorista_Ajudante'),
+                        },
+                        select:{
+                            id: true,
+                            arquivo_nome: true,
+                            arquivo_localizacao: true,
+                        }
+                    }
+                }
             });
 
             if(!form11DeclaracaoMotoristaAjudanteExistente){
@@ -235,6 +227,7 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                 url: req.originalUrl,
             });
 
+            // 3 - Retornar o form11_Declaracao_Motorista_Ajudante encontrado
             return res.status(200).json({
                 message: 'Formulário localizado',
                 data_registro: FormatDate(form11DeclaracaoMotoristaAjudanteExistente.data_cadastro),
@@ -267,8 +260,8 @@ export class Form11DeclaracaoMotoristaAjudanteController {
             // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
-                    id: relatorio_id,
                     numero_processo,
+                    id: relatorio_id,
                 },
             });
 
@@ -287,45 +280,41 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                 throw new AppError('form11_Declaracao_Motorista_Ajudante não encontrado neste relatório', 404);
             }
 
-            // 3 - Obter o registro dos files files.file_declaracao_motorista e files.file_declaracao_ajudante
-            const fileDeclaracaoMotorista = form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_motorista;
-            const fileDeclaracaoAjudante = form11DeclaracaoMotoristaAjudanteExistente.file_declaracao_ajudante;
+            //3 - Localizar todos os arquivos vinculados 
+            const arquivoExistente = await prisma.arquivo.findMany({
+                where: {
+                    form_id: form11DeclaracaoMotoristaAjudanteExistente.id,
+                },
+            });
 
-            if(!fileDeclaracaoMotorista && !fileDeclaracaoAjudante){
-                throw new AppError('Arquivos não encontrados', 404);
-            }
+            // 4 - Excluir da S3 todos os arquivos cuja as keys existe arquivoExistente
+            if(arquivoExistente){
+                arquivoExistente.forEach(async (arquivo) => {
+                    await S3StorageService.delete(arquivo.arquivo_chave);
+                });
 
-            // 4 - Obter as keys dos arquivos registros
-            const keyDeclaracaoMotorista = fileDeclaracaoMotorista?.split('/').slice(3).join('/');
-            const keyDeclaracaoAjudante = fileDeclaracaoAjudante?.split('/').slice(3).join('/');
-
-            // 5 - Excluir os arquivos do S3
-            if(keyDeclaracaoMotorista){
-                await S3StorageService.deleteFileFromS3(keyDeclaracaoMotorista);
-                
                 logger.info({
-                    message: `Arquivo ${keyDeclaracaoMotorista} excluído com sucesso do Amazon S3.`,
+                    message: `Arquivos ${arquivoExistente} excluídos com sucesso do Amazon S3.`,
                     method: req.method,
                     url: req.originalUrl,
                 });
             }
-
-            if(keyDeclaracaoAjudante){
-                await S3StorageService.deleteFileFromS3(keyDeclaracaoAjudante);
-                logger.info({
-                    message: `Arquivo ${keyDeclaracaoAjudante} excluído com sucesso do Amazon S3.`,
-                    method: req.method,
-                    url: req.originalUrl,
-                });
-            }
-          
-            // 6 -  Excluir o registro de form11_Declaracao_Motorista_Ajudante
+            
+            // 5 -  Excluir o registro de form11_Declaracao_Motorista_Ajudante
             await prisma.form11DeclaracaoMotoristaAjudante.delete({
                 where: {
                     numero_processo
                 },
             });
 
+            // 6 - Excluir qualquer arquivo vinculado ao form
+            await prisma.arquivo.deleteMany({
+                where: {
+                    form_id: form11DeclaracaoMotoristaAjudanteExistente.id,
+                },
+            });
+
+      
             //7 - Atualizar o campo "formularios_selecionados" do relatório (removendo form11DeclaracaoMotoristaAjudante)
             if (relatorioExistente.formularios_selecionados?.includes('form11_Declaracao_Motorista_Ajudante')) {
                 const formulariosSelecionados = relatorioExistente.formularios_selecionados?.filter((formulario) => formulario !== 'form11_Declaracao_Motorista_Ajudante');
@@ -352,7 +341,6 @@ export class Form11DeclaracaoMotoristaAjudanteController {
                 data_registro: FormatDate(form11DeclaracaoMotoristaAjudanteExistente.data_cadastro),
                 data_exclusao: FormatDate(new Date()),
                 relatorio_id: relatorio_id,
-                formulario_excluido: form11DeclaracaoMotoristaAjudanteExistente,
             });
 
         } catch (error) {
@@ -366,19 +354,6 @@ export class Form11DeclaracaoMotoristaAjudanteController {
         }
     }
 
-    async deleteFile(req: Request, res: Response, next: NextFunction) {
-        try {
-            const { key } = req.params;
-
-            // Deletar o arquivo do S3
-            await S3StorageService.deleteFileFromS3(key);
-
-            res.status(200).json({ message: 'Arquivo deletado com sucesso.' });
-        } catch (error) {
-            console.error(error);
-            next(error);
-        }
-    }
 }
 
 
