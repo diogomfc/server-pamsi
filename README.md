@@ -78,40 +78,40 @@ O progresso atual do desenvolvimento pode ser acompanhado através da lista de t
 - [x] Excluir Relatório
 
 **📋 Formulários de Ajudantes**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Veículo Transportador**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários do Órgão Policial**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Gerenciamento de Risco do Veículo**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Sistemas de Proteção do Carregamento**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Declaração do Motorista e Ajudante**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Gerenciamento de Risco do Depósito**
 - [ ] Criar Formulário
@@ -165,4 +165,4 @@ Aqui estão as próximas tarefas a serem concluídas:
 - [ ] Preparar a documentação para desenvolvedores
 
 ## 📈 Progresso Geral
-Atualmente, 20% do projeto foi concluído.
+Atualmente, 40% do projeto foi concluído.
