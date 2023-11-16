@@ -279,36 +279,74 @@ export class RelatorioController{
                             form9_Gerenciamento_Risco_Veiculo: true,
                             form10_Sistemas_Protecao_Carregamento: true,
                             form11_Declaracao_Motorista_Ajudante: {
-                                select:{
-                                    id: true,
-                                    numero_processo: true,
-                                    status: true,
-                                    data_cadastro: true,
-                                    formularioDoRelatorio_id: true,
-                                    file_declaracao_ajudante: true,
-                                    file_declaracao_motorista: true,
-                                    // arquivos_declaracoes:{
-                                    //     select:{
-                                    //         id: true,
-                                    //         numero_processo: true,
-                                    //         nome: true,
-                                    //         tamanho: true,
-                                    //         chave: true,
-                                    //         localizacao: true,
-                                    //     }
-                                    // }
+                                include:{
+                                    arquivos_declaracoes:{
+                                        select:{
+                                            id: true,
+                                            form_arquivo_campo_nome: true,
+                                            arquivo_nome: true,
+                                            arquivo_localizacao: true,
+                                        }
+                                    }
                                 }
                             },
                             form12_Gerenciamento_Risco_Deposito: true,
-                            form13_Locais_Evento: true,
+                            form13_Locais_Evento: {
+                                include:{
+                                    fotos_local_da_abordagem: {
+                                        select:{
+                                            id: true,
+                                            form_arquivo_campo_nome: true,
+                                            arquivo_nome: true,
+                                            arquivo_localizacao: true,
+                                        }
+                                    },
+                                    fotos_local_de_cativeiro_e_abandono_do_motorista: {
+                                        select:{
+                                            id: true,
+                                            form_arquivo_campo_nome: true,
+                                            arquivo_nome: true,
+                                            arquivo_localizacao: true,
+                                        }
+                                    },
+                                    fotos_local_de_encontro_do_veiculo: {
+                                        select:{
+                                            id: true,
+                                            form_arquivo_campo_nome: true,
+                                            arquivo_nome: true,
+                                            arquivo_localizacao: true,
+                                        }
+                                    },
+                                    fotos_local_de_recuperacao_da_carga: {
+                                        select:{
+                                            id: true,
+                                            form_arquivo_campo_nome: true,
+                                            arquivo_nome: true,
+                                            arquivo_localizacao: true,
+                                        }
+                                    },
+                                }
+                            },
                             form14_Resumo_Averiguacoes: true,
                             form15_Recuperacao_Carga: true,
-                            form16_Anexos_Fotograficos: true,
+                            form16_Anexos_Fotograficos: {
+                                include:{
+                                    anexos_fotograficos:{
+                                        select:{
+                                            id: true,
+                                            form_arquivo_campo_nome: true,
+                                            arquivo_nome: true,
+                                            arquivo_localizacao: true,
+                                        }
+                                    }
+                                }
+                            },
                             form17_Conclusao: true, 
                         },
                     },
                 },
             });
+
 
             if (todosRelatoriosExistente.length === 0) {
                 let message: string = 'Não existe relatório cadastrado';
@@ -324,7 +362,6 @@ export class RelatorioController{
 
                 return res.status(404).json({ message });
             }
-
 
             // 2 - Ordenar os formulários selecionados e incluir a etapa de cada formulário
             todosRelatoriosExistente.forEach((relatorio) => {
