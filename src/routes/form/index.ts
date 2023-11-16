@@ -11,10 +11,11 @@ import { form8OrgaoPolicialRoutes } from './form8-orgao-policial.routes';
 import { form9GerenciamentoRiscoRoutes } from './form9-gerenciamento.routes';
 import { form10SistemasProtecaoCarregamentoRoutes } from './form10-sistemas-protecao-carregamento.routes';
 import { form11DeclaracaoMotoristaAjudanteRoutes } from './form11-declaracao-motorista-ajudante.routes';
+import { form12GerenciamentoRiscoDepositoRoutes } from './form12-gerenciamento-risco-deposito.routes';
+
 import { arquivoRoutes } from './arquivo.routes';
 
 export const formRoutes = Router();
-
 // Rota de formularios
 formRoutes.use('/form1-cliente-segurado', form1ClienteSeguradoRoutes);
 formRoutes.use('/form2-caracteristica-sinistro', form2CaracteristicaSinistroRoutes);
@@ -27,6 +28,7 @@ formRoutes.use('/form8-orgao-policial', form8OrgaoPolicialRoutes);
 formRoutes.use('/form9-gerenciamento-risco', form9GerenciamentoRiscoRoutes);
 formRoutes.use('/form10-sistemas-protecao-carregamento', form10SistemasProtecaoCarregamentoRoutes);
 formRoutes.use('/form11-declaracao-motorista-ajudante', form11DeclaracaoMotoristaAjudanteRoutes);
+formRoutes.use('/form12-gerenciamento-risco-deposito', form12GerenciamentoRiscoDepositoRoutes);
 
 //Rotas de arquivos
 formRoutes.use('/upload/arquivo', arquivoRoutes);

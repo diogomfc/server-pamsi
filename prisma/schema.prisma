@@ -473,6 +473,37 @@ model Form12GerenciamentoRiscoDeposito {
   status          Status_Formulario @default(Pendente)
   data_cadastro   DateTime          @default(now())
 
+  //Depósito
+  deposito_sinistrado_segurado   Boolean? @default(false)
+  deposito_seguranca_eletronica  Boolean? @default(false)
+  deposito_seguranca_patrimonial Boolean? @default(false)
+  deposito_mercadoria_carregada  Boolean? @default(false)
+
+  //Dispositivos de Segurança no local de armazenamento
+  dispositivo_seguranca_cftv              Boolean? @default(false)
+  dispositivo_seguranca_botao_panico      Boolean? @default(false)
+  dispositivo_seguranca_alarme_sonoro     Boolean? @default(false)
+  dispositivo_seguranca_sensores_invasao  Boolean? @default(false)
+  dispositivo_seguranca_cerca_eletrica    Boolean? @default(false)
+  dispositivo_seguranca_sensores_presenca Boolean? @default(false)
+  dispositivo_seguranca_sirene            Boolean? @default(false)
+  dispositivo_seguranca_outros            Boolean? @default(false)
+
+  //Empresa de Segurança Patrimonial, quando aplicável.
+  empresa_seguranca_patrimonial_nome          String?
+  empresa_seguranca_patrimonial_cnpj          String?
+  empresa_seguranca_patrimonial_cep           String?
+  empresa_seguranca_patrimonial_endereco      String?
+  empresa_seguranca_patrimonial_numero        String?
+  empresa_seguranca_patrimonial_complemento   String?
+  empresa_seguranca_patrimonial_bairro        String?
+  empresa_seguranca_patrimonial_cidade        String?
+  empresa_seguranca_patrimonial_uf            String?
+  empresa_seguranca_patrimonial_telefone      String?
+  empresa_seguranca_patrimonial_celular       String?
+  empresa_seguranca_patrimonial_email         String?
+  empresa_seguranca_patrimonial_representante String?
+
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
 
