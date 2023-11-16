@@ -45,6 +45,20 @@ const uploadSingleFileToS3 = (fieldName: string, folderName: ((req: Request) => 
     };
 };
 
+const upload1SingleFileToS3 = (fieldName: ((req: Request) => string) | string, folderName: ((req: Request) => string) | string): RequestHandler => {
+    return (req, res, next) => {
+        try {
+            const dynamicFieldName = typeof fieldName === 'function' ? fieldName(req) : fieldName;
+            const dynamicFolderName = typeof folderName === 'function' ? folderName(req) : folderName;
+            const storage = s3Storage(dynamicFolderName);
+            return multer({ storage }).single(dynamicFieldName)(req, res, next);
+        } catch (error) {
+            logger.error(`Erro ao fazer upload do arquivo: ${error}`);
+            next(new AppError('Erro ao fazer upload do arquivo.', 500));
+        }
+    };
+};
+
 // Função para fazer upload de vários campos para o S3
 const uploadFieldsToS3 = (fields: { name: string, maxCount: number }[], folderName: ((req: Request) => string) | string): RequestHandler => {
     return (req, res, next) => {
@@ -89,6 +103,7 @@ const deleteFileFromS3 = async (fileKey: string): Promise<void> => {
 
 export const S3StorageService = {
     single: uploadSingleFileToS3,
+    single1: upload1SingleFileToS3,
     fields: uploadFieldsToS3,
     multiple: uploadMultipleFilesToS3,
     delete: deleteFileFromS3,

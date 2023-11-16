@@ -12,6 +12,7 @@ import { form9GerenciamentoRiscoRoutes } from './form9-gerenciamento.routes';
 import { form10SistemasProtecaoCarregamentoRoutes } from './form10-sistemas-protecao-carregamento.routes';
 import { form11DeclaracaoMotoristaAjudanteRoutes } from './form11-declaracao-motorista-ajudante.routes';
 import { form12GerenciamentoRiscoDepositoRoutes } from './form12-gerenciamento-risco-deposito.routes';
+import { form13LocaisEventoRoutes } from './form13-locais-evento.routes';
 
 import { arquivoRoutes } from './arquivo.routes';
 
@@ -29,6 +30,7 @@ formRoutes.use('/form9-gerenciamento-risco', form9GerenciamentoRiscoRoutes);
 formRoutes.use('/form10-sistemas-protecao-carregamento', form10SistemasProtecaoCarregamentoRoutes);
 formRoutes.use('/form11-declaracao-motorista-ajudante', form11DeclaracaoMotoristaAjudanteRoutes);
 formRoutes.use('/form12-gerenciamento-risco-deposito', form12GerenciamentoRiscoDepositoRoutes);
+formRoutes.use('/form13-locais-evento', form13LocaisEventoRoutes);
 
 //Rotas de arquivos
 formRoutes.use('/upload/arquivo', arquivoRoutes);

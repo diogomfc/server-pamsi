@@ -13,6 +13,7 @@ declare namespace Express {
       form:{
         form_id: string;
         form_nome: string;
+        form_arquivo_campo_nome?: string;
       }
     }
   }

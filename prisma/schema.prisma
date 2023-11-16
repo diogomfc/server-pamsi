@@ -459,7 +459,7 @@ model Form11DeclaracaoMotoristaAjudante {
   status          Status_Formulario @default(Pendente)
   data_cadastro   DateTime          @default(now())
 
-  arquivos_declaracoes Arquivo[] @relation("arquivos_declaracoes")
+  arquivos_declaracoes Arquivo[] @relation("declaracao_motorista_ajudante")
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
@@ -516,7 +516,81 @@ model Form13LocaisEvento {
   status          Status_Formulario @default(Pendente)
   data_cadastro   DateTime          @default(now())
 
-  fotos_local_da_Abordagem Arquivo[] @relation("fotos_local_da_Abordagem")
+  //Descrição do Local da Abordagem
+  local_abordagem_rodovia          String?
+  local_abordagem_cep              String?
+  local_abordagem_endereco         String?
+  local_abordagem_numero           String?
+  local_abordagem_complemento      String?
+  local_abordagem_bairro           String?
+  local_abordagem_cidade           String?
+  local_abordagem_uf               String?
+  local_abordagem_ponto_referencia String?
+  local_abordagem_latitude         String?
+  local_abordagem_longitude        String?
+  local_abordagem_data_hora        String?
+  local_abordagem_cftv             Boolean? @default(false)
+  local_abordagem_testemunhas      Boolean? @default(false)
+
+  //Anexo Registros Fotográficos do Local da Abordagem
+  fotos_local_da_abordagem Arquivo[] @relation("fotos_local_da_abordagem")
+
+  //Descrição do Local de Cativeiro e Abandono do Motorista
+  local_cativeiro_rodovia          String?
+  local_cativeiro_cep              String?
+  local_cativeiro_endereco         String?
+  local_cativeiro_numero           String?
+  local_cativeiro_complemento      String?
+  local_cativeiro_bairro           String?
+  local_cativeiro_cidade           String?
+  local_cativeiro_uf               String?
+  local_cativeiro_ponto_referencia String?
+  local_cativeiro_latitude         String?
+  local_cativeiro_longitude        String?
+  local_cativeiro_data_hora        String?
+  local_cativeiro_cftv             Boolean? @default(false)
+  local_cativeiro_testemunhas      Boolean? @default(false)
+
+  //Anexo Registros Fotográficos do Local de Cativeiro e Abandono do Motorista
+  fotos_local_de_cativeiro_e_abandono_do_motorista Arquivo[] @relation("fotos_local_de_cativeiro_e_abandono_do_motorista")
+
+  //Descrição do Local de Encontro do Veículo
+  local_encontro_rodovia          String?
+  local_encontro_cep              String?
+  local_encontro_endereco         String?
+  local_encontro_numero           String?
+  local_encontro_complemento      String?
+  local_encontro_bairro           String?
+  local_encontro_cidade           String?
+  local_encontro_uf               String?
+  local_encontro_ponto_referencia String?
+  local_encontro_latitude         String?
+  local_encontro_longitude        String?
+  local_encontro_data_hora        String?
+  local_encontro_cftv             Boolean? @default(false)
+  local_encontro_testemunhas      Boolean? @default(false)
+
+  //Anexo Registros Fotográficos do Local de Encontro do Veículo
+  fotos_local_de_encontro_do_veiculo Arquivo[] @relation("fotos_local_de_encontro_do_veiculo")
+
+  //Descrição do Local de Recuperação da Carga
+  local_recuperacao_rodovia          String?
+  local_recuperacao_cep              String?
+  local_recuperacao_endereco         String?
+  local_recuperacao_numero           String?
+  local_recuperacao_complemento      String?
+  local_recuperacao_bairro           String?
+  local_recuperacao_cidade           String?
+  local_recuperacao_uf               String?
+  local_recuperacao_ponto_referencia String?
+  local_recuperacao_latitude         String?
+  local_recuperacao_longitude        String?
+  local_recuperacao_data_hora        String?
+  local_recuperacao_cftv             Boolean? @default(false)
+  local_recuperacao_testemunhas      Boolean? @default(false)
+
+  //Anexo Registros Fotográficos do Local de Recuperação da Carga
+  fotos_local_de_recuperacao_da_carga Arquivo[] @relation("fotos_local_de_recuperacao_da_carga")
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique
@@ -586,12 +660,16 @@ model Arquivo {
   relatorio_id    String
   data_cadastro   DateTime @default(now())
 
-  form_id   String?
-  form_nome String?
+  form_id                 String?
+  form_nome               String?
+  form_arquivo_campo_nome String?
 
-  arquivos_form11DeclaracaoMotoristaAjudante Form11DeclaracaoMotoristaAjudante[] @relation("arquivos_declaracoes")
-  arquivos_form13LocaisEvento                Form13LocaisEvento[]                @relation("fotos_local_da_Abordagem")
-  arquivos_form16AnexosFotograficos          Form16AnexosFotograficos[]          @relation("anexos_fotograficos")
+  arquivos_form11DeclaracaoMotoristaAjudante                Form11DeclaracaoMotoristaAjudante[] @relation("declaracao_motorista_ajudante")
+  arquivos_form13LocaisEvento_local_da_Abordagem            Form13LocaisEvento[]                @relation("fotos_local_da_abordagem")
+  arquivos_form13LocaisEvento_local_da_cativeiro            Form13LocaisEvento[]                @relation("fotos_local_de_cativeiro_e_abandono_do_motorista")
+  arquivos_form13LocaisEvento_local_de_Encontro             Form13LocaisEvento[]                @relation("fotos_local_de_encontro_do_veiculo")
+  arquivos_form13LocaisEvento_local_de_Recuperacao_da_Carga Form13LocaisEvento[]                @relation("fotos_local_de_recuperacao_da_carga")
+  arquivos_form16AnexosFotograficos                         Form16AnexosFotograficos[]          @relation("anexos_fotograficos")
 
   arquivo_nome        String?
   arquivo_tamanho     Int?

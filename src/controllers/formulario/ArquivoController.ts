@@ -26,7 +26,7 @@ export class ArquivoController {
             if (!file) {
                 return next(new AppError('Arquivo não fornecido.', 401));
             }
-          
+
             const arquivo = file;
             const arquivo_nome = arquivo.originalname;
             const arquivo_tamanho = arquivo.size;
@@ -34,7 +34,7 @@ export class ArquivoController {
             const arquivo_localizacao =  decodeURIComponent(String(arquivo.location));
 
             // 2 - Registrar o arquivo no banco de dados conforme o formulário nome
-            if (form.form_nome === 'form11_Declaracao_Motorista_Ajudante') {
+            if (form.form_nome === 'form11_Declaracao_Motorista_Ajudante' && form.form_arquivo_campo_nome === 'declaracao_motorista_ajudante') {
                 await prisma.form11DeclaracaoMotoristaAjudante.update({
                     where: {
                         id: form_id,
@@ -46,6 +46,7 @@ export class ArquivoController {
                                 relatorio_id,
                                 form_id: form.form_id,
                                 form_nome : form.form_nome,
+                                form_arquivo_campo_nome: form.form_arquivo_campo_nome,
                                 arquivo_nome,
                                 arquivo_tamanho,
                                 arquivo_chave,
@@ -54,18 +55,19 @@ export class ArquivoController {
                         },
                     },
                 });
-            } else if (form.form_nome === 'form13_Locais_Evento') {
+            } else if (form.form_nome === 'form13_Locais_Evento' && form.form_arquivo_campo_nome === 'fotos_local_da_abordagem') {
                 await prisma.form13LocaisEvento.update({
                     where: {
                         id: form_id,
                     },
                     data: {
-                        fotos_local_da_Abordagem: {
+                        fotos_local_da_abordagem: {
                             create: {
                                 numero_processo,
                                 relatorio_id,
                                 form_id: form.form_id,
                                 form_nome : form.form_nome,
+                                form_arquivo_campo_nome: form.form_arquivo_campo_nome,
                                 arquivo_nome,
                                 arquivo_tamanho,
                                 arquivo_chave,
@@ -74,7 +76,70 @@ export class ArquivoController {
                         },
                     },
                 });
-            } else if (form.form_nome === 'form16_Anexos_Fotograficos') {
+            } else if (form.form_nome === 'form13_Locais_Evento' && form.form_arquivo_campo_nome === 'fotos_local_de_cativeiro_e_abandono_do_motorista') {
+                await prisma.form13LocaisEvento.update({
+                    where: {
+                        id: form_id,
+                    },
+                    data: {
+                        fotos_local_de_cativeiro_e_abandono_do_motorista: {
+                            create: {
+                                numero_processo,
+                                relatorio_id,
+                                form_id: form.form_id,
+                                form_nome : form.form_nome,
+                                form_arquivo_campo_nome: form.form_arquivo_campo_nome,
+                                arquivo_nome,
+                                arquivo_tamanho,
+                                arquivo_chave,
+                                arquivo_localizacao,
+                            },
+                        },
+                    },
+                });
+            }  else if (form.form_nome === 'form13_Locais_Evento' && form.form_arquivo_campo_nome === 'fotos_local_de_encontro_do_veiculo') {
+                await prisma.form13LocaisEvento.update({
+                    where: {
+                        id: form_id,
+                    },
+                    data: {
+                        fotos_local_de_encontro_do_veiculo: {
+                            create: {
+                                numero_processo,
+                                relatorio_id,
+                                form_id: form.form_id,
+                                form_nome : form.form_nome,
+                                form_arquivo_campo_nome: form.form_arquivo_campo_nome,
+                                arquivo_nome,
+                                arquivo_tamanho,
+                                arquivo_chave,
+                                arquivo_localizacao,
+                            },
+                        },
+                    },
+                });
+            } else if (form.form_nome === 'form13_Locais_Evento' && form.form_arquivo_campo_nome === 'fotos_local_de_recuperacao_da_carga') {
+                await prisma.form13LocaisEvento.update({
+                    where: {
+                        id: form_id,
+                    },
+                    data: {
+                        fotos_local_de_recuperacao_da_carga: {
+                            create: {
+                                numero_processo,
+                                relatorio_id,
+                                form_id: form.form_id,
+                                form_nome : form.form_nome,
+                                form_arquivo_campo_nome: form.form_arquivo_campo_nome,
+                                arquivo_nome,
+                                arquivo_tamanho,
+                                arquivo_chave,
+                                arquivo_localizacao,
+                            },
+                        },
+                    },
+                });
+            } else if (form.form_nome === 'form16_Anexos_Fotograficos' && form.form_arquivo_campo_nome === 'anexos_fotograficos') {
                 await prisma.form16AnexosFotograficos.update({
                     where: {
                         id: form_id,
@@ -86,6 +151,7 @@ export class ArquivoController {
                                 relatorio_id,
                                 form_id: form.form_id,
                                 form_nome : form.form_nome,
+                                form_arquivo_campo_nome: form.form_arquivo_campo_nome,
                                 arquivo_nome,
                                 arquivo_tamanho,
                                 arquivo_chave,
@@ -111,6 +177,7 @@ export class ArquivoController {
                 arquivos_associados:{
                     form_id: form.form_id,
                     form_nome: form.form_nome,
+                    form_arquivo_campo_nome: form.form_arquivo_campo_nome,
                     arquivo_nome,
                     arquivo_tamanho,
                     arquivo_chave,
