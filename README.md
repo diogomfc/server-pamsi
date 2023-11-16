@@ -114,16 +114,16 @@ O progresso atual do desenvolvimento pode ser acompanhado através da lista de t
 - [x] Excluir Relatório
 
 **📋 Formulários de Gerenciamento de Risco do Depósito**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Locais do Evento**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Resumo das Averiguações**
 - [ ] Criar Formulário
