@@ -6,11 +6,6 @@
     "auditLog": "logs/info/.e04f6a7249e81fb9f754b87b8fbc3d89ac2ff0ee-audit.json",
     "files": [
         {
-            "date": 1699621242289,
-            "name": "logs/info/pamsi-info-10-11-2023.log",
-            "hash": "cb64028ffb4817711b1ca003f328580c03fb91bb5dd8716002b5c49a06400405"
-        },
-        {
             "date": 1699708581641,
             "name": "logs/info/pamsi-info-11-11-2023.log",
             "hash": "eeaaffc92b8be8f46f5f3b4eef4ce323031cb41ce6f12319c45a54b4474299c2"
@@ -24,6 +19,11 @@
             "date": 1700139560229,
             "name": "logs/info/pamsi-info-16-11-2023.log",
             "hash": "27930aad602f6e35e25999bfb830be6604168d153eb68bdbe60cf1f9f985602b"
+        },
+        {
+            "date": 1700308584306,
+            "name": "logs/info/pamsi-info-18-11-2023.log",
+            "hash": "cb66e2514e40942a824b9518532bc0acc614cbafb82493376c18dec83d923eb0"
         }
     ],
     "hashType": "sha256"

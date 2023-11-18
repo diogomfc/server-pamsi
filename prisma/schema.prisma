@@ -600,9 +600,11 @@ model Form13LocaisEvento {
 
 model Form14ResumoAveriguacoes {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("14")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  resumo_averiguacoes String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique

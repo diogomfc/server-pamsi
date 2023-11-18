@@ -54,21 +54,13 @@ export class Form13LocaisEventoController {
                 },
             });
 
-            const fotos_local_da_Abordagem = {};
-            const fotos_local_de_Cativeiro_e_Abandono_do_Motorista = {};
-            const fotos_local_de_Encontro_do_Veiculo = {};
-            const fotos_local_de_Recuperacao_da_Carga = {};
-
+      
             // 4 - Criar um novo registro de Form13LocaisEvento
             const novoForm13LocaisEvento = await prisma.form13LocaisEvento.create({
                 data: {
                     formularioDoRelatorio_id: formularioDoRelatorioVinculado?.id,
                     numero_processo: relatorioExistente.numero_processo,
                     status: Status_Formulario.Formalizando,
-                    fotos_local_da_Abordagem,
-                    fotos_local_de_Cativeiro_e_Abandono_do_Motorista,
-                    fotos_local_de_Encontro_do_Veiculo,
-                    fotos_local_de_Recuperacao_da_Carga,
                     ...form13LocaisEventoBody,
                 },
             });
@@ -135,57 +127,7 @@ export class Form13LocaisEventoController {
                 where: {
                     numero_processo: relatorioExistente.numero_processo,
                 },
-                // include:{
-                //     fotos_local_da_Abordagem:{
-                //         where:{
-                //             //form_nome: relatorioExistente.formularios_selecionados.find((form) => form === 'form13_Locais_Evento'),
-                //             form_arquivo_campo_nome: 'fotos_local_da_abordagem'
-                //         },
-                //         select:{
-                //             id: true,
-                //             arquivo_nome: true,
-                //             form_arquivo_campo_nome: true,
-                //             arquivo_localizacao: true,
-                //         }
-                //     }, 
-                //     fotos_local_de_Cativeiro_e_Abandono_do_Motorista:{
-                //         where:{
-                //             //form_nome: relatorioExistente.formularios_selecionados.find((form) => form === 'form13_Locais_Evento'),
-                //             form_arquivo_campo_nome: 'fotos_local_de_cativeiro_e_abandono_do_motorista'
-                //         },
-                //         select:{
-                //             id: true,
-                //             arquivo_nome: true,
-                //             form_arquivo_campo_nome: true,
-                //             arquivo_localizacao: true,
-                //         }
-                //     },
-                //     fotos_local_de_Encontro_do_Veiculo:{
-                //         where:{
-                //             //form_nome: relatorioExistente.formularios_selecionados.find((form) => form === 'form13_Locais_Evento'),
-                //             form_arquivo_campo_nome: 'fotos_local_de_encontro_do_veiculo'
-                //         },
-                //         select:{
-                //             id: true,
-                //             arquivo_nome: true,
-                //             form_arquivo_campo_nome: true,
-                //             arquivo_localizacao: true,
-                //         }
-                //     },
-                //     fotos_local_de_Recuperacao_da_Carga:{
-                //         where:{
-                //             //form_nome: relatorioExistente.formularios_selecionados.find((form) => form === 'form13_Locais_Evento'),
-                //             form_arquivo_campo_nome: 'fotos_local_de_recuperacao_da_carga'
-                //         },
-                //         select:{
-                //             id: true,
-                //             arquivo_nome: true,
-                //             form_arquivo_campo_nome: true,
-                //             arquivo_localizacao: true,
-                //         }
-                //     },
-                    
-                // }
+               
                 include:{
                     fotos_local_da_abordagem: true,
                     fotos_local_de_cativeiro_e_abandono_do_motorista: true,
@@ -205,10 +147,6 @@ export class Form13LocaisEventoController {
                 where: {
                     form_id: form13LocaisEventoExistente?.id,
                 },
-                // select:{
-                //     form_arquivo_campo_nome: true,
-                //     arquivo_localizacao: true,
-                // }
             });
 
             if (!arquivosExistentes){
@@ -316,11 +254,6 @@ export class Form13LocaisEventoController {
                 throw new AppError('Form13LocaisEvento não encontrado.', 404);
             }
 
-            const fotos_local_da_Abordagem = {};
-            const fotos_local_de_Cativeiro_e_Abandono_do_Motorista = {};
-            const fotos_local_de_Encontro_do_Veiculo = {};
-            const fotos_local_de_Recuperacao_da_Carga = {};
-
             // Atualizar o registro de Form13LocaisEvento
             const form13LocaisEventoAtualizado = await prisma.form13LocaisEvento.update({
                 where: {
@@ -328,10 +261,6 @@ export class Form13LocaisEventoController {
                 },
                 data: {
                     status: Status_Formulario.Formalizando,
-                    fotos_local_da_Abordagem,
-                    fotos_local_de_Cativeiro_e_Abandono_do_Motorista,
-                    fotos_local_de_Encontro_do_Veiculo,
-                    fotos_local_de_Recuperacao_da_Carga,
                     ...form13LocaisEventoBody,
                 },
             });
