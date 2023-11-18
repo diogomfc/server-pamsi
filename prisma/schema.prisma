@@ -644,13 +644,11 @@ model Form16AnexosFotograficos {
 
 model Form17Conclusao {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("17")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
 
-  // Adicione os outros campos específicos deste formulário aqui
-  // Exemplo: campo1: TipoDoCampo1
-  // campo2: TipoDoCampo2
+  conclusao_averiguacoes String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique

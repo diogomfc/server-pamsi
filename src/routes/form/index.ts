@@ -18,6 +18,7 @@ import { form15RecuperacaoCargaRoutes } from './form15-recuperacao-carga.routes'
 
 import { arquivoRoutes } from './arquivo.routes';
 import { form16AnexosFotograficosRoutes } from './form16-anexos-fotograficos.routes';
+import { form17ConclusaoRoutes } from './form17-conclusao.routes';
 
 export const formRoutes = Router();
 // Rota de formularios
@@ -37,6 +38,7 @@ formRoutes.use('/form13-locais-evento', form13LocaisEventoRoutes);
 formRoutes.use('/form14-resumo-averiguacoes', form14ResumoAveriguacoesRoutes);
 formRoutes.use('/form15-recuperacao-carga', form15RecuperacaoCargaRoutes);
 formRoutes.use('/form16-anexos-fotograficos', form16AnexosFotograficosRoutes);
+formRoutes.use('/form17-conclusao', form17ConclusaoRoutes);
 
 //Rotas de arquivos
 formRoutes.use('/upload/arquivo', arquivoRoutes);
