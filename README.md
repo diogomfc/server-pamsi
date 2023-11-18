@@ -126,28 +126,28 @@ O progresso atual do desenvolvimento pode ser acompanhado através da lista de t
 - [x] Excluir Relatório
 
 **📋 Formulários de Resumo das Averiguações**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Recuperação da Carga**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Anexos Fotográficos**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 **📋 Formulários de Conclusão**
-- [ ] Criar Formulário
-- [ ] Listar Formulários
-- [ ] Detalhes do Relatório
-- [ ] Excluir Relatório
+- [x] Criar Formulário
+- [x] Listar Formulários
+- [x] Detalhes do Relatório
+- [x] Excluir Relatório
 
 ## 🔨 Tarefas Futuras
 
@@ -165,4 +165,4 @@ Aqui estão as próximas tarefas a serem concluídas:
 - [ ] Preparar a documentação para desenvolvedores
 
 ## 📈 Progresso Geral
-Atualmente, 40% do projeto foi concluído.
+Atualmente, 90% do projeto foi concluído.
