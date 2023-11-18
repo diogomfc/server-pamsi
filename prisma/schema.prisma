@@ -614,9 +614,13 @@ model Form14ResumoAveriguacoes {
 
 model Form15RecuperacaoCarga {
   id              String            @id @default(uuid())
-  //numero_etapa    String            @default("15")
-  numero_processo String?           @unique
+  numero_processo String            @unique
   status          Status_Formulario @default(Pendente)
+  data_cadastro   DateTime          @default(now())
+
+  recuperacao_carga_recuperada   Boolean? @default(false)
+  recuperacao_carga_parcial      Boolean? @default(false)
+  fato_gerador_recuperacao_carga String?
 
   formulario_associado     FormulariosDoRelatorio? @relation(fields: [formularioDoRelatorio_id], references: [id], onDelete: Cascade)
   formularioDoRelatorio_id String?                 @unique

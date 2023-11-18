@@ -14,8 +14,10 @@ import { form11DeclaracaoMotoristaAjudanteRoutes } from './form11-declaracao-mot
 import { form12GerenciamentoRiscoDepositoRoutes } from './form12-gerenciamento-risco-deposito.routes';
 import { form13LocaisEventoRoutes } from './form13-locais-evento.routes';
 import { form14ResumoAveriguacoesRoutes } from './form14-resumo-averiguacoes.routes';
+import { form15RecuperacaoCargaRoutes } from './form15-recuperacao-carga.routes';
 
 import { arquivoRoutes } from './arquivo.routes';
+import { form16AnexosFotograficosRoutes } from './form16-anexos-fotograficos.routes';
 
 export const formRoutes = Router();
 // Rota de formularios
@@ -33,7 +35,8 @@ formRoutes.use('/form11-declaracao-motorista-ajudante', form11DeclaracaoMotorist
 formRoutes.use('/form12-gerenciamento-risco-deposito', form12GerenciamentoRiscoDepositoRoutes);
 formRoutes.use('/form13-locais-evento', form13LocaisEventoRoutes);
 formRoutes.use('/form14-resumo-averiguacoes', form14ResumoAveriguacoesRoutes);
-
+formRoutes.use('/form15-recuperacao-carga', form15RecuperacaoCargaRoutes);
+formRoutes.use('/form16-anexos-fotograficos', form16AnexosFotograficosRoutes);
 
 //Rotas de arquivos
 formRoutes.use('/upload/arquivo', arquivoRoutes);
