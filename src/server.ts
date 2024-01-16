@@ -5,6 +5,7 @@ import cors from 'cors';
 
 import { env } from './env';
 import { AppError } from './utils/AppError';
+import { STORAGE_LOCAL } from './configs/localStorage';
 import { routes } from './routes';
 import { z } from 'zod';
 
@@ -18,6 +19,9 @@ app.use(cors());
 
 // ROTAS DA APLICAÇÃO
 app.use(routes);
+
+// rota estática para arquivos
+app.use('/images/avatar', express.static(STORAGE_LOCAL.UPLOADS_FOLDER_AVATAR));
 
 // Tratamento de erros: Verificar se erro vem do lado do CLIENTE ou pelo SERVIDOR
 app.use((err: ErrorRequestHandler, req: Request, res: Response, next: NextFunction) => {

@@ -15,6 +15,7 @@ model Usuario {
   id                    String            @id @default(uuid())
   nome                  String
   email                 String            @unique
+  telefone              String?
   avatar                String?
   funcao                FuncaoUsuario     @default(Analista)
   senha_hash            String
@@ -71,6 +72,8 @@ enum Status_Relatorio {
   Aprovado
   Rejeitado
   Emitido
+  Recuperado
+  Irreversivel
 }
 
 enum Natureza_Sinistro {

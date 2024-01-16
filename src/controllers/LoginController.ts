@@ -29,7 +29,7 @@ export class LoginController {
                 method: req.method,
                 url: req.originalUrl,
             });
-            
+
             try {
                 // 1 - Verificar se o login é válido
                 usuario = await prisma.usuario.findUnique({
@@ -63,6 +63,7 @@ export class LoginController {
                     id: usuario.id,
                     nome: usuario.nome,
                     email: usuario.email,
+                    telefone: usuario.telefone,
                     avatar: usuario.avatar,
                     funcao: usuario.funcao,
                     criado_em: FormatDate(usuario.criado_em),
@@ -88,7 +89,7 @@ export class LoginController {
                 });
 
             } catch (error) {
-             
+
                 if (usuario) {
                     logger.error({
                         message: `Erro ao realizar login. Usuário: ${usuario.nome} - ID: ${usuario.id}. Motivo: ${JSON.stringify(error)}.`,

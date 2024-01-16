@@ -1,4 +1,4 @@
-import {  } from './../schemas/RelatorioSchema';
+import { } from './../schemas/RelatorioSchema';
 import { NextFunction, Request, Response } from 'express';
 
 import { FormatDate } from '@/utils/DateUtils';
@@ -7,11 +7,11 @@ import { logger } from '@/utils/Logger';
 import { prisma } from '@/database';
 
 import { relatorioSchema, RelatorioSchemaType } from '@/schemas/RelatorioSchema';
-import { Tipo_Formulario,  } from '@prisma/client';
+import { Tipo_Formulario, } from '@prisma/client';
 
-export class RelatorioController{
+export class RelatorioController {
     //POST - /relatorio -- Responsável por criar relatórios
-    async create (req: Request, res: Response, next: NextFunction){
+    async create(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const relatorio: RelatorioSchemaType['create'] = relatorioSchema.create.parse(req.body);
 
@@ -21,7 +21,7 @@ export class RelatorioController{
                 method: req.method,
                 url: req.originalUrl,
             });
-              
+
             // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
@@ -29,10 +29,10 @@ export class RelatorioController{
                 }
             });
 
-            if(relatorioExistente){
+            if (relatorioExistente) {
                 throw new AppError('Número do processo já existe', 400);
             }
-            
+
             // 2 - Criar o relatorio
             const criarRelatorio = await prisma.relatorio.create({
                 data: {
@@ -48,97 +48,97 @@ export class RelatorioController{
                     },
                     formularios_selecionados: relatorio.formularios_selecionados,
                     formularios: {
-                        create:{
+                        create: {
                             numero_processo: relatorio.numero_processo,
                             form1_Cliente_Segurado: relatorio.formularios_selecionados?.includes('form1_Cliente_Segurado') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                     nome_cliente: relatorio.cliente,
                                     cnpj: relatorio.cnpj,
                                 },
                             } : undefined,
                             form2_Caracteristica_Sinistro: relatorio.formularios_selecionados?.includes('form2_Caracteristica_Sinistro') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                     natureza_sinistro: relatorio.natureza_sinistro,
                                 },
                             } : undefined,
                             form3_Cronologia_Sinistro: relatorio.formularios_selecionados?.includes('form3_Cronologia_Sinistro') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form4_Do_Carregamento: relatorio.formularios_selecionados?.includes('form4_Do_Carregamento') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form5_Motorista: relatorio.formularios_selecionados?.includes('form5_Motorista') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form6_Ajudantes: relatorio.formularios_selecionados?.includes('form6_Ajudantes') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form7_Veiculo_Transportador: relatorio.formularios_selecionados?.includes('form7_Veiculo_Transportador') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form8_Orgao_Policial: relatorio.formularios_selecionados?.includes('form8_Orgao_Policial') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form9_Gerenciamento_Risco_Veiculo: relatorio.formularios_selecionados?.includes('form9_Gerenciamento_Risco_Veiculo') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form10_Sistemas_Protecao_Carregamento: relatorio.formularios_selecionados?.includes('form10_Sistemas_Protecao_Carregamento') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form11_Declaracao_Motorista_Ajudante: relatorio.formularios_selecionados?.includes('form11_Declaracao_Motorista_Ajudante') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form12_Gerenciamento_Risco_Deposito: relatorio.formularios_selecionados?.includes('form12_Gerenciamento_Risco_Deposito') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form13_Locais_Evento: relatorio.formularios_selecionados?.includes('form13_Locais_Evento') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form14_Resumo_Averiguacoes: relatorio.formularios_selecionados?.includes('form14_Resumo_Averiguacoes') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form15_Recuperacao_Carga: relatorio.formularios_selecionados?.includes('form15_Recuperacao_Carga') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form16_Anexos_Fotograficos: relatorio.formularios_selecionados?.includes('form16_Anexos_Fotograficos') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
                             form17_Conclusao: relatorio.formularios_selecionados?.includes('form17_Conclusao') ? {
-                                create:{
+                                create: {
                                     numero_processo: relatorio.numero_processo,
                                 },
                             } : undefined,
-                        }, 
+                        },
                     },
                 },
             });
@@ -152,7 +152,9 @@ export class RelatorioController{
                     id: true,
                     nome: true,
                     email: true,
+                    telefone: true,
                     avatar: true,
+                    funcao: true,
                 },
             });
 
@@ -167,7 +169,9 @@ export class RelatorioController{
                             id: true,
                             nome: true,
                             email: true,
+                            telefone: true,
                             avatar: true,
+                            funcao: true,
                         },
                     },
                 },
@@ -178,7 +182,7 @@ export class RelatorioController{
                 const regex = /form(\d+)_/;
                 const numA = parseInt(a.match(regex)![1]);
                 const numB = parseInt(b.match(regex)![1]);
-          
+
                 return numA - numB;
             });
 
@@ -200,10 +204,10 @@ export class RelatorioController{
                 usuario_responsavel: usuarioResponsavel,
                 usuarios_permitidos: usuariosPermitidos?.usuarios_permitidos,
                 formularios_selecionados: criarRelatorio.formularios_selecionados,
-               
+
             };
 
-          
+
             logger.info({
                 message: `Relatório criado com sucesso. ID: ${criarRelatorio.id}, Numero do Processo: ${criarRelatorio.numero_processo}, Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
                 method: req.method,
@@ -212,7 +216,7 @@ export class RelatorioController{
 
             // 7 - Retorna a resposta com o relatório criado
             return res.status(201).json({
-                message : 'Relatório criado com sucesso',
+                message: 'Relatório criado com sucesso',
                 relatorio_criado: relatorioCriado
             });
 
@@ -228,14 +232,14 @@ export class RelatorioController{
     }
     //GET - /relatorio/:numero_processo?/:relatorio_id? -- Responsável por listar um relatório por numero_processo ou relatorio_id ou todos os relatórios quando não informado nenhum parâmetro
     async index(req: Request, res: Response, next: NextFunction) {
-      
+
         const usuario_responsavel = req.usuario;
         const { relatorio_id } = req.params;
 
-        try {       
+        try {
             logger.info({
                 message: `Iniciando ação de busca de relatórios. relatorio_id: ${relatorio_id}, Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
-                method: req.method, 
+                method: req.method,
                 url: req.originalUrl
             });
 
@@ -247,27 +251,31 @@ export class RelatorioController{
                 orderBy: {
                     data_emissao: 'desc',
                 },
-                include:{
-                    usuario_responsavel:{
-                        select:{
+                include: {
+                    usuario_responsavel: {
+                        select: {
                             id: true,
                             nome: true,
                             email: true,
+                            telefone: true,
                             avatar: true,
+                            funcao: true,
                         }
                     },
 
-                    usuarios_permitidos:{
-                        select:{
+                    usuarios_permitidos: {
+                        select: {
                             id: true,
                             nome: true,
                             email: true,
+                            telefone: true,
                             avatar: true,
+                            funcao: true
                         }
                     },
-                   
-                    formularios:{
-                        select:{
+
+                    formularios: {
+                        select: {
                             form1_Cliente_Segurado: true,
                             form2_Caracteristica_Sinistro: true,
                             form3_Cronologia_Sinistro: true,
@@ -279,9 +287,9 @@ export class RelatorioController{
                             form9_Gerenciamento_Risco_Veiculo: true,
                             form10_Sistemas_Protecao_Carregamento: true,
                             form11_Declaracao_Motorista_Ajudante: {
-                                include:{
-                                    arquivos_declaracoes:{
-                                        select:{
+                                include: {
+                                    arquivos_declaracoes: {
+                                        select: {
                                             id: true,
                                             form_arquivo_campo_nome: true,
                                             arquivo_nome: true,
@@ -292,9 +300,9 @@ export class RelatorioController{
                             },
                             form12_Gerenciamento_Risco_Deposito: true,
                             form13_Locais_Evento: {
-                                include:{
+                                include: {
                                     fotos_local_da_abordagem: {
-                                        select:{
+                                        select: {
                                             id: true,
                                             form_arquivo_campo_nome: true,
                                             arquivo_nome: true,
@@ -302,7 +310,7 @@ export class RelatorioController{
                                         }
                                     },
                                     fotos_local_de_cativeiro_e_abandono_do_motorista: {
-                                        select:{
+                                        select: {
                                             id: true,
                                             form_arquivo_campo_nome: true,
                                             arquivo_nome: true,
@@ -310,7 +318,7 @@ export class RelatorioController{
                                         }
                                     },
                                     fotos_local_de_encontro_do_veiculo: {
-                                        select:{
+                                        select: {
                                             id: true,
                                             form_arquivo_campo_nome: true,
                                             arquivo_nome: true,
@@ -318,7 +326,7 @@ export class RelatorioController{
                                         }
                                     },
                                     fotos_local_de_recuperacao_da_carga: {
-                                        select:{
+                                        select: {
                                             id: true,
                                             form_arquivo_campo_nome: true,
                                             arquivo_nome: true,
@@ -330,9 +338,9 @@ export class RelatorioController{
                             form14_Resumo_Averiguacoes: true,
                             form15_Recuperacao_Carga: true,
                             form16_Anexos_Fotograficos: {
-                                include:{
-                                    anexos_fotograficos:{
-                                        select:{
+                                include: {
+                                    anexos_fotograficos: {
+                                        select: {
                                             id: true,
                                             form_arquivo_campo_nome: true,
                                             arquivo_nome: true,
@@ -341,7 +349,7 @@ export class RelatorioController{
                                     }
                                 }
                             },
-                            form17_Conclusao: true, 
+                            form17_Conclusao: true,
                         },
                     },
                 },
@@ -356,7 +364,7 @@ export class RelatorioController{
 
                 logger.info({
                     message: `${message}. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
-                    method: req.method, 
+                    method: req.method,
                     url: req.originalUrl
                 });
 
@@ -369,10 +377,10 @@ export class RelatorioController{
                     const regex = /form(\d+)_/;
                     const numA = parseInt(a.match(regex)![1]);
                     const numB = parseInt(b.match(regex)![1]);
-            
+
                     return numA - numB;
                 });
-            
+
                 relatorio.formularios_selecionados = relatorio.formularios_selecionados.map((form, index) => ({
                     form: form as Tipo_Formulario,
                     etapa: (index + 1).toString(),
@@ -381,12 +389,12 @@ export class RelatorioController{
 
             // 3 - Samar a quantidade de formulario existentes
             const qtd_etapas_formulario = String(todosRelatoriosExistente.map(relatorio => relatorio.formularios_selecionados.length));
-         
+
 
             // 4 - Filtrar os formulários existentes no relatório removendo os formulários nulos
             const listagemRelatorios = todosRelatoriosExistente.map(relatorio => {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const etapas: {[key: string]: any} = {};
+                const etapas: { [key: string]: any } = {};
                 for (const key in relatorio.formularios) {
                     if (Object.prototype.hasOwnProperty.call(relatorio.formularios, key)) {
                         const form = relatorio.formularios[key as keyof typeof relatorio.formularios];
@@ -421,23 +429,23 @@ export class RelatorioController{
 
 
             const message: string = relatorio_id ? 'Relatório filtrado com sucesso' : `${qtd_relatorios} relatórios encontrados`;
-            
+
             logger.info({
                 message: `${message}. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
-                method: req.method, 
+                method: req.method,
                 url: req.originalUrl
             });
 
             // 6 - Retorna a resposta com os relatórios e a quantidade de relatórios existentes
             return res.status(200).json({
-                message : message,
+                message: message,
                 relatorio_filtrado: listagemRelatorios,
             });
-          
+
         } catch (error) {
             logger.error({
-                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}, encontrou um erro ao listar relatórios: ${JSON.stringify(error)}`, 
-                method: req.method, 
+                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}, encontrou um erro ao listar relatórios: ${JSON.stringify(error)}`,
+                method: req.method,
                 url: req.originalUrl
             });
             return next(error);
@@ -448,9 +456,9 @@ export class RelatorioController{
     async update(req: Request, res: Response, next: NextFunction) {
         const usuario_responsavel = req.usuario;
         const { relatorio_id } = req.params;
-       
+
         const relatorio: RelatorioSchemaType['update'] = relatorioSchema.update.parse(req.body);
-  
+
         try {
             logger.info({
                 message: `Iniciando ação de atualização de relatório. Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id}.`,
@@ -462,19 +470,19 @@ export class RelatorioController{
             const relatorioExistente = await prisma.relatorio.findFirst({
                 where: {
                     id: relatorio_id
-                },  
+                },
             });
-            
-            if(!relatorioExistente){
+
+            if (!relatorioExistente) {
                 throw new AppError('Relatório não encontrado', 404);
             }
-            
+
             // 2 - verificar quais os fomulários existente no relatório
             const formulariosSelecionadosExistente = await prisma.relatorio.findFirst({
-                where:{
+                where: {
                     numero_processo: relatorioExistente.numero_processo
-                }, 
-                select:{
+                },
+                select: {
                     formularios_selecionados: true,
                 }
             });
@@ -489,12 +497,12 @@ export class RelatorioController{
             ];
 
 
-            // 5 - Não permitir que o usuário cadastre o mesmo formulário que já existe no relatório.
+            // 5 - Não é permitido incluir formulariosSelecionados já selecionado no relatório.
             const formulariosSelecionadosUnicos = new Set(relatorio.formularios_selecionados);
             if (formulariosSelecionadosUnicos.size !== relatorio.formularios_selecionados?.length) {
-                throw new AppError('Não é permitido cadastrar o mesmo formulário mais de uma vez', 400);
+                throw new AppError(`Formulários duplicados: ${relatorio.formularios_selecionados?.filter((form, index, self) => self.indexOf(form) !== index).join(', ')}`, 400);
             }
-           
+
             // 6 - Atualiza o relatório com os novos dados
             const novoRelatorio = await prisma.relatorio.update({
                 where: { id: relatorioExistente.id },
@@ -511,7 +519,7 @@ export class RelatorioController{
                     },
                     formularios_selecionados: relatorio.formularios_selecionados,
                     formularios: {
-                        update:{
+                        update: {
                             numero_processo: relatorio.numero_processo,
                             form1_Cliente_Segurado: relatorio.formularios_selecionados?.includes('form1_Cliente_Segurado') ? {
                                 upsert: {
@@ -528,183 +536,183 @@ export class RelatorioController{
                                 },
                             } : undefined,
                             form2_Caracteristica_Sinistro: relatorio.formularios_selecionados?.includes('form2_Caracteristica_Sinistro') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                         natureza_sinistro: relatorio.natureza_sinistro,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                         natureza_sinistro: relatorioExistente.natureza_sinistro,
                                     },
                                 }
                             } : undefined,
                             form3_Cronologia_Sinistro: relatorio.formularios_selecionados?.includes('form3_Cronologia_Sinistro') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form4_Do_Carregamento: relatorio.formularios_selecionados?.includes('form4_Do_Carregamento') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form5_Motorista: relatorio.formularios_selecionados?.includes('form5_Motorista') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form6_Ajudantes: relatorio.formularios_selecionados?.includes('form6_Ajudantes') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form7_Veiculo_Transportador: relatorio.formularios_selecionados?.includes('form7_Veiculo_Transportador') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form8_Orgao_Policial: relatorio.formularios_selecionados?.includes('form8_Orgao_Policial') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form9_Gerenciamento_Risco_Veiculo: relatorio.formularios_selecionados?.includes('form9_Gerenciamento_Risco_Veiculo') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form10_Sistemas_Protecao_Carregamento: relatorio.formularios_selecionados?.includes('form10_Sistemas_Protecao_Carregamento') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form11_Declaracao_Motorista_Ajudante: relatorio.formularios_selecionados?.includes('form11_Declaracao_Motorista_Ajudante') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form12_Gerenciamento_Risco_Deposito: relatorio.formularios_selecionados?.includes('form12_Gerenciamento_Risco_Deposito') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form13_Locais_Evento: relatorio.formularios_selecionados?.includes('form13_Locais_Evento') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form14_Resumo_Averiguacoes: relatorio.formularios_selecionados?.includes('form14_Resumo_Averiguacoes') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form15_Recuperacao_Carga: relatorio.formularios_selecionados?.includes('form15_Recuperacao_Carga') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form16_Anexos_Fotograficos: relatorio.formularios_selecionados?.includes('form16_Anexos_Fotograficos') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
                             form17_Conclusao: relatorio.formularios_selecionados?.includes('form17_Conclusao') ? {
-                                upsert:{
-                                    update:{
+                                upsert: {
+                                    update: {
                                         numero_processo: relatorio.numero_processo,
                                     },
-                                    create:{
+                                    create: {
                                         numero_processo: relatorioExistente.numero_processo,
                                     },
                                 }
                             } : undefined,
-                        }, 
+                        },
                     },
                 },
             });
-  
+
             // 7 - Retornar o relatório atualizado
             return res.status(200).json({
-                message : 'Relatório atualizado com sucesso',
-                relatorio_atualizado : novoRelatorio
+                message: 'Relatório atualizado com sucesso',
+                relatorio_atualizado: novoRelatorio
             });
 
         } catch (error) {
             logger.error({
                 message: `Erro ao atualizar relatório para o usuário ${usuario_responsavel.nome} (ID: ${usuario_responsavel.id}): ${JSON.stringify(error)}`,
             });
-  
+
             return next(error);
         }
     }
@@ -716,10 +724,10 @@ export class RelatorioController{
         try {
             logger.info({
                 message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} iniciando a ação de deletar o relatório com ID: ${relatorio_id}`,
-                method: req.method, 
+                method: req.method,
                 url: req.originalUrl
             });
-            
+
             // 1 - Verificar se o relatório existe
             const relatorioExistente = await prisma.relatorio.findUnique({
                 where: {
@@ -730,7 +738,7 @@ export class RelatorioController{
             if (!relatorioExistente) {
                 throw new AppError('Relatório não encontrado', 404);
             }
-          
+
             // 2 - Excluir o relatório
             const relatorioExcluido = await prisma.relatorio.delete({
                 where: {
@@ -748,11 +756,11 @@ export class RelatorioController{
             });
         } catch (error) {
             logger.error({
-                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} encontrou um erro ao deletar o relatório com ID: ${relatorio_id}. Erro: ${JSON.stringify(error)}`, 
-                method: req.method, 
+                message: `Usuário: ${usuario_responsavel.nome} - ID: ${usuario_responsavel.id} encontrou um erro ao deletar o relatório com ID: ${relatorio_id}. Erro: ${JSON.stringify(error)}`,
+                method: req.method,
                 url: req.originalUrl
             });
-            
+
             next(new AppError('Erro ao deletar o relatório', 500));
         }
     }

@@ -4,13 +4,14 @@ declare namespace Express {
       id: string;
       nome: string;
       email: string;
+      telefone: string?;
       avatar: string?;
       funcao: 'Admin' | 'Analista' | 'Supervisor' | 'Revisor';
     };
-    relatorio:{
+    relatorio: {
       relatorio_id: string;
       numero_processo: string;
-      form:{
+      form: {
         form_id: string;
         form_nome: string;
         form_arquivo_campo_nome?: string;
