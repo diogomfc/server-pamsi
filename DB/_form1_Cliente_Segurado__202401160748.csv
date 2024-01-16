@@ -1,0 +1,2 @@
+"id","numero_processo","status","nome_cliente","cnpj","bairro","celular","cep","cidade","complemento","email","endereco","numero","representante","telefone","uf","data_cadastro","formularioDoRelatorio_id"
+b3c83737-3cf6-43e1-b609-95c684e84deb,"000.001",Pendente,Cliente 000.001,"12.345.678/9012-34",,,,,,,,,,,,2023-11-03 22:40:14.724,"3bc7e3fd-491f-4b90-8d50-bfbffa1b4390"
